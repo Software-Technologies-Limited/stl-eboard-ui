@@ -1,0 +1,55 @@
+/*
+ * Accent integration for components that need a soft accent treatment.
+ * This file is imported by eboard-ui.css and uses only the public theme API.
+ */
+.stl-avatar,
+.stl-pillbox > span {
+  background: color-mix(in srgb, var(--stl-accent) 14%, var(--stl-color-surface));
+  color: var(--stl-accent-content);
+}
+
+.stl-calendar__days button:hover,
+.stl-toggle[aria-pressed="true"] {
+  background: color-mix(in srgb, var(--stl-accent) 14%, var(--stl-color-surface));
+  border-color: var(--stl-accent);
+  color: var(--stl-accent-content);
+}
+
+.stl-chart__bars i {
+  background: var(--stl-accent);
+}
+
+.stl-brand__mark,
+.stl-calendar__days [aria-current],
+.stl-pagination [aria-current="page"] {
+  background: var(--stl-accent);
+  border-color: var(--stl-accent);
+  color: var(--stl-accent-foreground);
+}
+
+.stl-textarea:focus,
+.stl-select:focus,
+.stl-otp input:focus {
+  outline: 3px solid color-mix(in srgb, var(--stl-accent) 28%, transparent);
+  outline-offset: 1px;
+}
+
+.dark .stl-button--secondary,
+.dark .stl-card__footer,
+.dark .stl-composer__bar,
+.dark .stl-editor__toolbar,
+.dark .stl-table th {
+  background: var(--stl-base-800);
+}
+
+.dark .stl-input,
+.dark .stl-textarea,
+.dark .stl-select,
+.dark .stl-modal,
+.dark .stl-menu__panel,
+.dark .stl-popover__panel,
+.dark .stl-editor__content,
+.dark .stl-kanban article {
+  background: var(--stl-color-surface);
+  color: var(--stl-color-text);
+}

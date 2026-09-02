@@ -1,0 +1,28 @@
+{
+    "name": "stlhorizon/stl-eboard-ui",
+    "description": "Framework-agnostic, accessible PHP UI components for STL eBoard applications.",
+    "type": "library",
+    "license": "MIT",
+    "keywords": ["php", "ui", "components", "laravel", "yii2"],
+    "require": {
+        "php": "^8.1"
+    },
+    "suggest": {
+        "illuminate/support": "Enables automatic Laravel package discovery.",
+        "yiisoft/yii2": "Enables the Yii 2 widget adapter."
+    },
+    "autoload": {
+        "psr-4": {
+            "Stl\\EboardUi\\": "src/"
+        },
+        "files": ["src/helpers.php"]
+    },
+    "extra": {
+        "laravel": {
+            "providers": ["Stl\\EboardUi\\Bridge\\Laravel\\EboardUiServiceProvider"]
+        }
+    },
+    "config": {
+        "sort-packages": true
+    }
+}
