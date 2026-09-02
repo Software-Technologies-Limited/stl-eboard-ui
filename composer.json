@@ -1,5 +1,5 @@
 {
-    "name": "stlhorizon/stl-eboard-ui",
+    "name": "software-technologies-limited/stl-eboard-ui",
     "description": "Framework-agnostic, accessible PHP UI components for STL eBoard applications.",
     "type": "library",
     "license": "MIT",
