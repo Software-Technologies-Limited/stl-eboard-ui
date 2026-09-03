@@ -10,12 +10,17 @@ use Stl\EboardUi\Components\Badge;
 use Stl\EboardUi\Components\Button;
 use Stl\EboardUi\Components\Card;
 use Stl\EboardUi\Components\Checkbox;
+use Stl\EboardUi\Components\DataTable;
 use Stl\EboardUi\Components\EmptyState;
 use Stl\EboardUi\Components\HtmlFragment;
 use Stl\EboardUi\Components\Icon;
+use Stl\EboardUi\Components\IconAction;
 use Stl\EboardUi\Components\Input;
 use Stl\EboardUi\Components\Modal;
+use Stl\EboardUi\Components\PageHeader;
+use Stl\EboardUi\Components\Pagination;
 use Stl\EboardUi\Components\StatCard;
+use Stl\EboardUi\Components\Toolbar;
 use Stl\EboardUi\Components\WorkspaceShell;
 use Stl\EboardUi\Components\WorkspaceSidebar;
 use Stl\EboardUi\Contracts\Renderable;
@@ -81,6 +86,43 @@ final class Ui
     public static function icon(string $name, ?string $label = null, array $attributes = []): Icon
     {
         return new Icon($name, $label, $attributes);
+    }
+
+    /** @param array<string, mixed> $attributes */
+    public static function pageHeader(string $eyebrow, string $title, array $attributes = []): PageHeader
+    {
+        return new PageHeader($eyebrow, $title, $attributes);
+    }
+
+    /** @param array<string, mixed> $attributes */
+    public static function toolbar(string $query = '', string $placeholder = 'Search', Renderable|string|null $actions = null, array $attributes = []): Toolbar
+    {
+        return new Toolbar($query, $placeholder, $actions, $attributes);
+    }
+
+    /** @param array<string, mixed> $attributes */
+    public static function iconAction(string $icon, string $label, array $attributes = []): IconAction
+    {
+        return new IconAction($icon, $label, $attributes);
+    }
+
+    /**
+     * @param  array<int, string>  $headers
+     * @param  array<int, array<int, Renderable|string|int|float|null>>  $rows
+     * @param  array<string, mixed>  $attributes
+     */
+    public static function dataTable(array $headers, array $rows, array $attributes = []): DataTable
+    {
+        return new DataTable($headers, $rows, $attributes);
+    }
+
+    /**
+     * @param  callable(int): string  $urlForPage
+     * @param  array<string, mixed>  $attributes
+     */
+    public static function pagination(int $currentPage, int $lastPage, int $firstItem, int $lastItem, int $total, callable $urlForPage, string $label = 'results', array $attributes = []): Pagination
+    {
+        return new Pagination($currentPage, $lastPage, $firstItem, $lastItem, $total, $urlForPage, $label, $attributes);
     }
 
     /** @param array<string, mixed> $attributes */
