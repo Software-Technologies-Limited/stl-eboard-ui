@@ -94,10 +94,15 @@ final class Ui
         return new PageHeader($eyebrow, $title, $attributes);
     }
 
-    /** @param array<string, mixed> $attributes */
-    public static function toolbar(string $query = '', string $placeholder = 'Search', Renderable|string|null $actions = null, array $attributes = []): Toolbar
+    /**
+     * @param  Renderable|string|array<int, Renderable|string>|null  $actions
+     * @param  array<string, string|int|float|bool|null>  $hiddenFields
+     * @param  array<string, mixed>  $attributes
+     * @param  array<string, mixed>  $formAttributes
+     */
+    public static function toolbar(string $query = '', string $placeholder = 'Search', Renderable|string|array|null $actions = null, array $hiddenFields = [], array $attributes = [], array $formAttributes = []): Toolbar
     {
-        return new Toolbar($query, $placeholder, $actions, $attributes);
+        return new Toolbar($query, $placeholder, $actions, $hiddenFields, $attributes, $formAttributes);
     }
 
     /** @param array<string, mixed> $attributes */
