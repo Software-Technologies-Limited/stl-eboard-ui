@@ -25,6 +25,9 @@ use Stl\EboardUi\Ui;
 echo Ui::button('Save', attributes: ['name' => 'action', 'value' => 'save']);
 echo Ui::input('email', 'Email address', 'email');
 echo Ui::badge('Approved', 'success');
+echo Ui::statCard('1,240', 'Active members', '+8.2% this month');
+echo Ui::emptyState('No meetings yet', 'Create a meeting to get started.', Ui::button('Create meeting'));
+echo Ui::icon('calendar');
 ```
 
 Copy or serve `resources/css/eboard-ui.css` and `resources/js/eboard-ui.js` from your public directory.
@@ -83,11 +86,21 @@ echo Widget::widget(['component' => Ui::badge('Ready', 'success')]);
 The package covers the complete STL component catalog: Accordion, Autocomplete,
 Avatar, Badge, Brand, Breadcrumbs, Button, Calendar, Callout, Card, Carousel,
 Chart, Checkbox, Color Picker, Command, Composer, Context Menu, Date Picker,
-Dropdown, Editor, Field, File Upload, Heading, Icon, Input, Kanban, Modal,
+Dropdown, Editor, Empty State, Field, File Upload, Heading, Icon, Input, Kanban, Modal,
 Navbar, OTP Input, Pagination, Pillbox, Popover, Profile, Progress, Radio,
-Select, Separator, Skeleton, Slider, Switch, Table, Tabs, Text, Textarea,
+Select, Separator, Skeleton, Slider, Stat Card, Switch, Table, Tabs, Text, Textarea,
 Time Picker, Timeline, Toast, Toggle, and Tooltip. Header and Sidebar layout
-primitives are included as well.
+primitives are included as well, including Workspace Shell and Workspace Sidebar.
+
+Table headers and scalar cells are escaped by default. To render a component in
+a cell, pass any package component that implements `Renderable`:
+
+```php
+echo Ui::table(
+    ['Member', 'Status'],
+    [['Ada Lovelace', Ui::badge('Active', 'success')]],
+);
+```
 
 All custom HTML attributes pass through to the final element. Component classes
 and public variables use the `stl-` prefix to avoid collisions.

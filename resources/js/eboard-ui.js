@@ -22,6 +22,16 @@
     const toggle = event.target.closest('[data-stl-toggle]');
     if (toggle) toggle.setAttribute('aria-pressed', String(toggle.getAttribute('aria-pressed') !== 'true'));
 
+    const workspaceToggle = event.target.closest('[data-stl-workspace-toggle]');
+    if (workspaceToggle) {
+      const shell = workspaceToggle.closest('[data-stl-workspace-shell]');
+      if (shell) {
+        const isCollapsed = shell.dataset.stlWorkspaceCollapsed !== 'true';
+        shell.dataset.stlWorkspaceCollapsed = String(isCollapsed);
+        workspaceToggle.setAttribute('aria-expanded', String(!isCollapsed));
+      }
+    }
+
     const dismiss = event.target.closest('[data-stl-dismiss]');
     if (dismiss) dismiss.closest('.stl-toast')?.remove();
 

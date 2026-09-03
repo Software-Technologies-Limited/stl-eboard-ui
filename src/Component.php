@@ -10,9 +10,7 @@ use Stl\EboardUi\Support\Html;
 abstract class Component implements Renderable
 {
     /** @param array<string, mixed> $attributes */
-    public function __construct(protected array $attributes = [])
-    {
-    }
+    public function __construct(protected array $attributes = []) {}
 
     /** @param array<string, mixed> $attributes */
     public function with(array $attributes): static
