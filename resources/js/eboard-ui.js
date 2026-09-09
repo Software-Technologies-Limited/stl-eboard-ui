@@ -5,10 +5,18 @@
     if (!toast || toast.classList.contains('stl-toast--leaving')) return;
     window.clearTimeout(toastTimers.get(toast));
     toast.classList.add('stl-toast--leaving');
-    window.setTimeout(() => {
+    const removeToast = () => {
+      if (!toast.isConnected) return;
       toast.remove();
       document.dispatchEvent(new CustomEvent('stl:toast-dismissed'));
-    }, 300);
+    };
+    const handleTransitionEnd = (event) => {
+      if (event.target !== toast || event.propertyName !== 'opacity') return;
+      toast.removeEventListener('transitionend', handleTransitionEnd);
+      removeToast();
+    };
+    toast.addEventListener('transitionend', handleTransitionEnd);
+    window.setTimeout(removeToast, 450);
   };
 
   const initialiseToast = (toast) => {
