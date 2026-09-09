@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Stl\EboardUi\Bridge\Laravel;
 
-if (class_exists(\Illuminate\Support\ServiceProvider::class)) {
-    final class EboardUiServiceProvider extends \Illuminate\Support\ServiceProvider
+use Illuminate\Support\ServiceProvider;
+
+if (class_exists(ServiceProvider::class)) {
+    final class EboardUiServiceProvider extends ServiceProvider
     {
         public function boot(): void
         {

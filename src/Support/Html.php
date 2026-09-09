@@ -29,6 +29,7 @@ final class Html
             $name = self::escape($name);
             if ($value === true && in_array($name, self::BOOLEAN_ATTRIBUTES, true)) {
                 $rendered[] = $name;
+
                 continue;
             }
 

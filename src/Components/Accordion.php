@@ -19,7 +19,7 @@ final class Accordion extends Component
     {
         $items = '';
         foreach ($this->items as $item) {
-            $items .= '<details class="stl-accordion__item"'.(!empty($item['open']) ? ' open' : '').'><summary>'.Html::escape($item['title']).'</summary><div class="stl-accordion__content">'.Html::escape($item['content']).'</div></details>';
+            $items .= '<details class="stl-accordion__item"'.(! empty($item['open']) ? ' open' : '').'><summary>'.Html::escape($item['title']).'</summary><div class="stl-accordion__content">'.Html::escape($item['content']).'</div></details>';
         }
 
         return '<div'.$this->attrs(['class' => 'stl-accordion']).'>'.$items.'</div>';
