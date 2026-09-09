@@ -20,8 +20,6 @@ Then run `composer update stl/eboard-ui`.
 ```php
 require 'vendor/autoload.php';
 
-use Stl\EboardUi\Ui;
-
 echo Ui::button('Save', attributes: ['name' => 'action', 'value' => 'save']);
 echo Ui::input('email', 'Email address', 'email');
 echo Ui::badge('Approved', 'success');
@@ -67,10 +65,10 @@ Package discovery registers the service provider. Publish the assets:
 php artisan vendor:publish --tag=eboard-ui-assets
 ```
 
-Add `/vendor/eboard-ui/eboard-ui.css` and `/vendor/eboard-ui/eboard-ui.js` to the layout, then call the same `Ui` API from Blade:
+Add `/vendor/eboard-ui/eboard-ui.css` and `/vendor/eboard-ui/eboard-ui.js` to the layout. The package registers the global `Ui` alias, so the same API is available in every Blade view without an import:
 
 ```blade
-{!! \Stl\EboardUi\Ui::button('Create meeting') !!}
+{!! Ui::button('Create meeting') !!}
 ```
 
 ## Yii 2
@@ -132,7 +130,7 @@ Laravel flash messages can be mapped directly without coupling the package to
 Laravel's session implementation:
 
 ```blade
-{!! \Stl\EboardUi\Ui::flashToaster(session()->all()) !!}
+{!! Ui::flashToaster(session()->all()) !!}
 ```
 
 The JavaScript asset can show a toast from anywhere and creates its host when
