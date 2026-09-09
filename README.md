@@ -25,6 +25,9 @@ use Stl\EboardUi\Ui;
 echo Ui::button('Save', attributes: ['name' => 'action', 'value' => 'save']);
 echo Ui::input('email', 'Email address', 'email');
 echo Ui::badge('Approved', 'success');
+echo Ui::toaster([
+    ['title' => 'Success', 'message' => 'The meeting was saved.', 'tone' => 'success'],
+]);
 ```
 
 Copy or serve `resources/css/eboard-ui.css` and `resources/js/eboard-ui.js` from your public directory.
@@ -94,3 +97,44 @@ and public variables use the `stl-` prefix to avoid collisions.
 
 The package targets PHP 8.1 and newer. Interactive examples live in the
 separate `stl-library-demo` Laravel application rather than in this package.
+
+## Toasts
+
+Render server-side notifications inside a fixed toaster host. Supported tones
+are `info`, `success`, `warning`, and `danger`. The timeout is expressed in
+milliseconds; use `0` to keep a toast visible until it is dismissed.
+
+```php
+echo Ui::toaster([
+    [
+        'title' => 'Success',
+        'message' => 'Your changes were saved.',
+        'tone' => 'success',
+        'timeout' => 3500,
+    ],
+]);
+```
+
+Laravel flash messages can be mapped directly without coupling the package to
+Laravel's session implementation:
+
+```blade
+{!! \Stl\EboardUi\Ui::flashToaster(session()->all()) !!}
+```
+
+The JavaScript asset can show a toast from anywhere and creates its host when
+needed:
+
+```js
+window.StlEboardUi.toast({
+  title: 'Success',
+  message: 'Your changes were saved.',
+  tone: 'success',
+  timeout: 3500,
+  position: 'top-center',
+});
+```
+
+You can also dispatch an `stl:toast` event with the same detail object.
+Positions include `top-left`, `top-center`, `top-right`, `bottom-left`,
+`bottom-center`, and `bottom-right`.

@@ -58,7 +58,6 @@ final class ExtendedComponents
             'textarea' => '<label class="stl-field"><span class="stl-field__label">'.$e($a(1, 'Message')).'</span><textarea class="stl-textarea" name="'.$e($a(0, 'message')).'" rows="'.$e($a(2, 4)).'"'.$attrs($a(3, [])).'></textarea></label>',
             'timePicker' => '<label class="stl-field"><span class="stl-field__label">'.$e($a(1, 'Time')).'</span><input class="stl-input" type="time" name="'.$e($a(0, 'time')).'" value="'.$e($a(2, '')).'"'.$attrs($a(3, [])).'></label>',
             'timeline' => self::timeline((array) $a(0, []), (array) $a(1, [])),
-            'toast' => '<div class="stl-toast stl-toast--'.$e($a(2, 'info')).'" role="status"><span><strong>'.$e($a(0)).'</strong><small>'.$e($a(1)).'</small></span><button type="button" data-stl-dismiss aria-label="Dismiss">×</button></div>',
             'toggle' => '<button class="stl-toggle" type="button" aria-pressed="'.($a(1, false) ? 'true' : 'false').'" data-stl-toggle'.$attrs($a(2, [])).'>'.$e($a(0)).'</button>',
             'tooltip' => '<span class="stl-tooltip" data-tooltip="'.$e($a(1)).'">'.$a(0).'</span>',
             'header' => '<header class="stl-header"'.$attrs($a(2, [])).'><strong>'.$e($a(0)).'</strong><nav aria-label="Header navigation">'.$a(1, '').'</nav></header>',
