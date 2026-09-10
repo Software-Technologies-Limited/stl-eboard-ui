@@ -20,7 +20,10 @@ use Stl\EboardUi\Components\Input;
 use Stl\EboardUi\Components\Modal;
 use Stl\EboardUi\Components\PageHeader;
 use Stl\EboardUi\Components\Pagination;
+use Stl\EboardUi\Components\Panel;
+use Stl\EboardUi\Components\RichTable;
 use Stl\EboardUi\Components\StatCard;
+use Stl\EboardUi\Components\Tabs;
 use Stl\EboardUi\Components\Toolbar;
 use Stl\EboardUi\Components\Toast;
 use Stl\EboardUi\Components\Toaster;
@@ -84,7 +87,7 @@ final class Ui
         return new Checkbox($name, $label, $checked, $attributes);
     }
 
-    public static function modal(string $id, string $title, string $body, array $attributes = []): Modal
+    public static function modal(string $id, string $title, Renderable|string $body, array $attributes = []): Modal
     {
         return new Modal($id, $title, $body, $attributes);
     }
@@ -146,6 +149,33 @@ final class Ui
     public static function dataTable(array $headers, array $rows, array $attributes = []): DataTable
     {
         return new DataTable($headers, $rows, $attributes);
+    }
+
+    /**
+     * @param  Renderable|array<int, Renderable|string>|null  $actions
+     * @param  array<string, mixed>  $attributes
+     */
+    public static function panel(string $title, Renderable|string $body, Renderable|array|null $actions = null, array $attributes = []): Panel
+    {
+        return new Panel($title, $body, $actions, $attributes);
+    }
+
+    /**
+     * @param  array<int, string>  $headers
+     * @param  array<string, mixed>  $attributes
+     */
+    public static function richTable(array $headers, Renderable|string $body, array $attributes = []): RichTable
+    {
+        return new RichTable($headers, $body, $attributes);
+    }
+
+    /**
+     * @param  array<int, array{id: string, label: string, content: Renderable|string}>  $items
+     * @param  array<string, mixed>  $attributes
+     */
+    public static function tabs(array $items, string $active, array $attributes = []): Tabs
+    {
+        return new Tabs($items, $active, $attributes);
     }
 
     /**

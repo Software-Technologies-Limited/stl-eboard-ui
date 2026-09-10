@@ -127,8 +127,7 @@
     const tab = event.target.closest('[role="tab"]');
     if (tab) {
       const tabs = tab.closest('[data-stl-tabs]');
-      tabs?.querySelectorAll('[role="tab"]').forEach(item => item.setAttribute('aria-selected', String(item === tab)));
-      tabs?.querySelectorAll('[role="tabpanel"]').forEach(panel => panel.hidden = panel.id !== tab.getAttribute('aria-controls'));
+      if (tabs) activateTab(tabs, tab);
     }
 
     const carouselButton = event.target.closest('[data-stl-prev], [data-stl-next]');
@@ -142,6 +141,33 @@
     const format = event.target.closest('[data-stl-format]');
     if (format) document.execCommand(format.dataset.stlFormat, false);
   });
+
+  document.addEventListener('keydown', (event) => {
+    const tab = event.target.closest('[role="tab"]');
+    const tabs = tab?.closest('[data-stl-tabs]');
+    if (!tabs || !['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+
+    const tabItems = [...tabs.querySelectorAll('[role="tab"]')];
+    const current = tabItems.indexOf(tab);
+    const next = event.key === 'Home' ? 0
+      : event.key === 'End' ? tabItems.length - 1
+      : (current + (event.key === 'ArrowRight' ? 1 : -1) + tabItems.length) % tabItems.length;
+
+    event.preventDefault();
+    tabItems[next]?.focus();
+    activateTab(tabs, tabItems[next]);
+  });
+
+  function activateTab(tabs, tab) {
+    tabs.querySelectorAll('[role="tab"]').forEach(item => {
+      const selected = item === tab;
+      item.setAttribute('aria-selected', String(selected));
+      item.tabIndex = selected ? 0 : -1;
+    });
+    tabs.querySelectorAll('[role="tabpanel"]').forEach(panel => {
+      panel.hidden = panel.id !== tab.getAttribute('aria-controls');
+    });
+  }
 
   document.addEventListener('input', (event) => {
     if (event.target.matches('[data-stl-command-input]')) {
