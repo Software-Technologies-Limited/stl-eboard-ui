@@ -26,6 +26,15 @@ echo Ui::badge('Approved', 'success');
 echo Ui::toaster([
     ['title' => 'Success', 'message' => 'The meeting was saved.', 'tone' => 'success'],
 ]);
+echo Ui::filterForm(
+    filters: [
+        'all' => ['label' => 'All', 'href' => '/items'],
+        'open' => ['label' => 'Open', 'href' => '/items?status=open'],
+    ],
+    active: 'all',
+    query: '',
+    placeholder: 'Search items',
+);
 echo Ui::statCard('1,240', 'Active members', '+8.2% this month');
 echo Ui::emptyState('No meetings yet', 'Create a meeting to get started.', Ui::button('Create meeting'));
 echo Ui::icon('calendar');

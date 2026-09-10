@@ -1,5 +1,6 @@
-@layer stl-eboard-ui, stl-eboard-ui-extended, stl-eboard-ui-toast;
+@layer stl-eboard-ui, stl-eboard-ui-extended, stl-eboard-ui-filter-form, stl-eboard-ui-toast;
 @import url('./eboard-ui-theme.css');
+@import url('./filter-form.css');
 @import url('./toast.css');
 
 @layer stl-eboard-ui {

@@ -12,6 +12,7 @@ use Stl\EboardUi\Components\Card;
 use Stl\EboardUi\Components\Checkbox;
 use Stl\EboardUi\Components\DataTable;
 use Stl\EboardUi\Components\EmptyState;
+use Stl\EboardUi\Components\FilterForm;
 use Stl\EboardUi\Components\HtmlFragment;
 use Stl\EboardUi\Components\Icon;
 use Stl\EboardUi\Components\IconAction;
@@ -61,6 +62,16 @@ final class Ui
     public static function emptyState(string $title, ?string $description = null, Renderable|string|null $action = null, array $attributes = []): EmptyState
     {
         return new EmptyState($title, $description, $action, $attributes);
+    }
+
+    /**
+     * @param  array<string, array{label: string, href: string}>  $filters
+     * @param  array<string, string|int|float|bool|null>  $hiddenFields
+     * @param  array<string, mixed>  $attributes
+     */
+    public static function filterForm(array $filters, string $active = '', string $query = '', string $placeholder = 'Search', string $queryName = 'q', array $hiddenFields = [], array $attributes = []): FilterForm
+    {
+        return new FilterForm($filters, $active, $query, $placeholder, $queryName, $hiddenFields, $attributes);
     }
 
     public static function input(string $name, ?string $label = null, string $type = 'text', ?string $error = null, array $attributes = []): Input

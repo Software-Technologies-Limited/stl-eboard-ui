@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.5.0] - 2026-09-10
+
+### Features
+
+* add a reusable filter and search form component
+
 ## [1.4.2] - 2026-09-09
 
 ### Improvements
