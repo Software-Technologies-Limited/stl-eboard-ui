@@ -1,0 +1,72 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-main
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          tools: composer:v2
+
+      - name: Validate Composer metadata
+        run: composer validate --no-check-publish
+
+      - name: Lint PHP sources
+        run: find src -type f -name '*.php' -print0 | xargs -0 -n1 php -l
+
+      - name: Determine the next version
+        id: version
+        shell: bash
+        run: |
+          latest="$(git tag --list 'v*' --sort=-version:refname | head -n 1)"
+          latest="${latest:-v0.0.0}"
+          commits="$(git log --format=%B "${latest}..HEAD" 2>/dev/null || git log --format=%B HEAD)"
+
+          if grep -Eiq 'BREAKING CHANGE|^[a-z]+(\([^)]+\))?!:' <<< "$commits"; then
+            bump="major"
+          elif grep -Eiq '^feat(\([^)]+\))?:' <<< "$commits"; then
+            bump="minor"
+          else
+            bump="patch"
+          fi
+
+          version="${latest#v}"
+          IFS='.' read -r major minor patch <<< "$version"
+          case "$bump" in
+            major) next="v$((major + 1)).0.0" ;;
+            minor) next="v${major}.$((minor + 1)).0" ;;
+            patch) next="v${major}.${minor}.$((patch + 1))" ;;
+          esac
+
+          echo "latest=$latest" >> "$GITHUB_OUTPUT"
+          echo "bump=$bump" >> "$GITHUB_OUTPUT"
+          echo "tag=$next" >> "$GITHUB_OUTPUT"
+
+      - name: Create and push release tag
+        env:
+          TAG: ${{ steps.version.outputs.tag }}
+          BUMP: ${{ steps.version.outputs.bump }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "$TAG" -m "Release $TAG ($BUMP)"
+          git push origin "$TAG"
