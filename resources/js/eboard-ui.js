@@ -140,6 +140,22 @@
 
     const format = event.target.closest('[data-stl-format]');
     if (format) document.execCommand(format.dataset.stlFormat, false);
+
+    const multiSelectTrigger = event.target.closest('[data-stl-multiselect-trigger]');
+    if (multiSelectTrigger) {
+      const root = multiSelectTrigger.closest('[data-stl-multiselect]');
+      const panel = root?.querySelector('[data-stl-multiselect-panel]');
+      if (panel && !multiSelectTrigger.disabled) {
+        panel.hidden = !panel.hidden;
+        multiSelectTrigger.setAttribute('aria-expanded', String(!panel.hidden));
+        if (!panel.hidden) panel.querySelector('[data-stl-multiselect-search]')?.focus();
+      }
+    } else if (!event.target.closest('[data-stl-multiselect]')) {
+      document.querySelectorAll('[data-stl-multiselect-panel]:not([hidden])').forEach(panel => {
+        panel.hidden = true;
+        panel.closest('[data-stl-multiselect]')?.querySelector('[data-stl-multiselect-trigger]')?.setAttribute('aria-expanded', 'false');
+      });
+    }
   });
 
   document.addEventListener('keydown', (event) => {
@@ -179,6 +195,95 @@
     }
     if (event.target.matches('.stl-slider input')) event.target.closest('.stl-slider').querySelector('output').value = event.target.value;
     if (event.target.matches('[data-stl-otp] input') && event.target.value) event.target.nextElementSibling?.focus();
+    if (event.target.matches('[data-stl-multiselect-search]')) {
+      const query = event.target.value.trim().toLowerCase();
+      const root = event.target.closest('[data-stl-multiselect]');
+      let visible = 0;
+      root.querySelectorAll('[data-stl-multiselect-option]').forEach(option => {
+        option.hidden = !option.textContent.toLowerCase().includes(query);
+        if (!option.hidden) visible++;
+      });
+      root.querySelector('[data-stl-multiselect-empty]').hidden = visible > 0;
+    }
+  });
+
+  document.addEventListener('change', (event) => {
+    if (!event.target.matches('[data-stl-multiselect-input]')) return;
+    const root = event.target.closest('[data-stl-multiselect]');
+    const value = root.querySelector('[data-stl-multiselect-value]');
+    const selected = [...root.querySelectorAll('[data-stl-multiselect-input]:checked')];
+    value.className = selected.length ? 'stl-multiselect__chips' : 'stl-multiselect__placeholder';
+    if (!selected.length) {
+      value.textContent = root.querySelector('[data-stl-multiselect-trigger]').dataset.placeholder || 'Select options';
+      return;
+    }
+    value.replaceChildren(...selected.map(input => {
+      const chip = document.createElement('span');
+      chip.className = 'stl-multiselect__chip';
+      chip.textContent = input.closest('[data-stl-multiselect-option]').textContent.trim();
+      return chip;
+    }));
+  });
+
+  document.addEventListener('keydown', (event) => {
+    const sortableHeader = event.target.closest('[data-stl-table-sort]');
+    if (sortableHeader && ['Enter', ' '].includes(event.key)) {
+      event.preventDefault();
+      sortAdvancedTable(sortableHeader);
+      return;
+    }
+    if (event.key !== 'Escape') return;
+    const root = event.target.closest('[data-stl-multiselect]');
+    const panel = root?.querySelector('[data-stl-multiselect-panel]');
+    if (panel && !panel.hidden) {
+      panel.hidden = true;
+      root.querySelector('[data-stl-multiselect-trigger]').setAttribute('aria-expanded', 'false');
+      root.querySelector('[data-stl-multiselect-trigger]').focus();
+    }
+  });
+
+  document.addEventListener('change', (event) => {
+    if (event.target.matches('[data-stl-table-select-all]')) {
+      const table = event.target.closest('[data-stl-advanced-table]');
+      table?.querySelectorAll('[data-stl-table-select]').forEach(input => input.checked = event.target.checked);
+    }
+    if (event.target.matches('[data-stl-table-select]')) {
+      const table = event.target.closest('[data-stl-advanced-table]');
+      const inputs = [...table.querySelectorAll('[data-stl-table-select]')];
+      const all = table.querySelector('[data-stl-table-select-all]');
+      if (all) { all.checked = inputs.length > 0 && inputs.every(input => input.checked); all.indeterminate = !all.checked && inputs.some(input => input.checked); }
+    }
+    if (event.target.matches('[data-stl-table-column-toggle]')) {
+      const table = event.target.closest('[data-stl-advanced-table]');
+      const key = event.target.value;
+      table?.querySelectorAll(`[data-stl-table-cell="${CSS.escape(key)}"], [data-key="${CSS.escape(key)}"]`).forEach(cell => cell.hidden = !event.target.checked);
+    }
+    if (event.target.matches('[data-stl-table-select-all], [data-stl-table-select]')) {
+      const table = event.target.closest('[data-stl-advanced-table]');
+      const bulkActions = table?.querySelector('[data-stl-table-bulk-actions]');
+      if (bulkActions) bulkActions.hidden = !table.querySelector('[data-stl-table-select]:checked');
+    }
+  });
+
+  const sortAdvancedTable = (header) => {
+    const table = header.closest('[data-stl-advanced-table]');
+    const key = header.dataset.key;
+    const direction = header.getAttribute('aria-sort') === 'ascending' ? 'descending' : 'ascending';
+    [...table.querySelectorAll('[data-stl-table-sort]')].forEach(item => item.setAttribute('aria-sort', item === header ? direction : 'none'));
+    const rows = [...table.querySelectorAll('tbody tr[data-stl-table-row]')];
+    rows.sort((a, b) => {
+      const aText = a.querySelector(`[data-stl-table-cell="${CSS.escape(key)}"]`)?.textContent.trim() || '';
+      const bText = b.querySelector(`[data-stl-table-cell="${CSS.escape(key)}"]`)?.textContent.trim() || '';
+      const numeric = Number(aText.replace(/[^0-9.-]/g, '')) - Number(bText.replace(/[^0-9.-]/g, ''));
+      const result = Number.isFinite(numeric) && aText !== '' && bText !== '' ? numeric : aText.localeCompare(bText, undefined, { numeric: true });
+      return direction === 'ascending' ? result : -result;
+    });
+    rows.forEach(row => row.parentElement.appendChild(row));
+  };
+
+  document.addEventListener('click', (event) => {
+    const header = event.target.closest('[data-stl-table-sort]');
+    if (header) sortAdvancedTable(header);
   });
 
   if (document.readyState === 'loading') {

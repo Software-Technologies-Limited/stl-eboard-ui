@@ -6,9 +6,11 @@ namespace Stl\EboardUi;
 
 use Stl\EboardUi\Components\Accordion;
 use Stl\EboardUi\Components\Alert;
+use Stl\EboardUi\Components\AdvancedTable;
 use Stl\EboardUi\Components\Badge;
 use Stl\EboardUi\Components\Button;
 use Stl\EboardUi\Components\Card;
+use Stl\EboardUi\Components\CircularProgress;
 use Stl\EboardUi\Components\Checkbox;
 use Stl\EboardUi\Components\DataTable;
 use Stl\EboardUi\Components\EmptyState;
@@ -18,6 +20,7 @@ use Stl\EboardUi\Components\Icon;
 use Stl\EboardUi\Components\IconAction;
 use Stl\EboardUi\Components\Input;
 use Stl\EboardUi\Components\Modal;
+use Stl\EboardUi\Components\MultiSelect;
 use Stl\EboardUi\Components\PageHeader;
 use Stl\EboardUi\Components\Pagination;
 use Stl\EboardUi\Components\Panel;
@@ -136,9 +139,28 @@ final class Ui
     }
 
     /** @param array<string, mixed> $attributes */
-    public static function iconAction(string $icon, string $label, array $attributes = []): IconAction
+    public static function iconAction(Renderable|string $icon, string $label, array $attributes = [], ?string $tooltip = null): IconAction
     {
-        return new IconAction($icon, $label, $attributes);
+        return new IconAction($icon, $label, $attributes, $tooltip);
+    }
+
+    /**
+     * @param  array<array-key, string>|array<int, array{value: string|int, label: string}>  $options
+     * @param  array<int, string|int>  $selected
+     * @param  array<string, mixed>  $attributes Attributes applied to the trigger button.
+     */
+    public static function multiSelect(string $name, array $options, array $selected = [], ?string $label = null, string $placeholder = 'Select options', array $attributes = []): MultiSelect
+    {
+        return new MultiSelect($name, $options, $selected, $label, $placeholder, $attributes);
+    }
+
+    /**
+     * @param  array<int, array{max: int|float|string, stroke: string, textColor?: string, textClass?: string}>  $dynamicColorStops
+     * @param  array<string, mixed>  $attributes
+     */
+    public static function circularProgress(string|int|float $value = 0, string|int|float $max = 100, string $size = 'md', string $variant = 'default', bool $showValue = true, bool $showRawValue = false, bool $dynamicColor = true, array $dynamicColorStops = [], string $dynamicFallbackStroke = '#22c55e', string $dynamicFallbackTextClass = 'text-green-700', string $strokeLinecap = 'round', array $attributes = []): CircularProgress
+    {
+        return new CircularProgress($value, $max, $size, $variant, $showValue, $showRawValue, $dynamicColor, $dynamicColorStops, $dynamicFallbackStroke, $dynamicFallbackTextClass, $strokeLinecap, $attributes);
     }
 
     /**
@@ -151,6 +173,12 @@ final class Ui
         return new DataTable($headers, $rows, $attributes);
     }
 
+    /** @param array<int, array<string, mixed>> $columns @param array<int, array<string, mixed>|object> $rows @param array<int, array<string, mixed>> $actions @param array<string, mixed> $options @param array<string, mixed> $attributes */
+    public static function advancedTable(array $columns, array $rows, array $actions = [], array $options = [], array $attributes = []): AdvancedTable
+    {
+        return new AdvancedTable($columns, $rows, $actions, $options, $attributes);
+    }
+
     /**
      * @param  Renderable|array<int, Renderable|string>|null  $actions
      * @param  array<string, mixed>  $attributes
@@ -161,11 +189,20 @@ final class Ui
     }
 
     /**
-     * @param  array<int, string>  $headers
+     * Renders rich table markup, or an advanced table when $body is structured row data.
+     *
+     * @param  array<int, string>|array<int, array<string, mixed>>  $headers
+     * @param  Renderable|string|array<int, array<string, mixed>|object>  $body
      * @param  array<string, mixed>  $attributes
+     * @param  array<int, array<string, mixed>>  $actions
+     * @param  array<string, mixed>  $options
      */
-    public static function richTable(array $headers, Renderable|string $body, array $attributes = []): RichTable
+    public static function richTable(array $headers, Renderable|string|array $body, array $attributes = [], array $actions = [], array $options = []): RichTable|AdvancedTable
     {
+        if (is_array($body)) {
+            return new AdvancedTable($headers, $body, $actions, $options, $attributes);
+        }
+
         return new RichTable($headers, $body, $attributes);
     }
 

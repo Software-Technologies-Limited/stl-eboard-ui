@@ -38,6 +38,23 @@ echo Ui::filterForm(
 echo Ui::statCard('1,240', 'Active members', '+8.2% this month');
 echo Ui::emptyState('No meetings yet', 'Create a meeting to get started.', Ui::button('Create meeting'));
 echo Ui::icon('calendar');
+echo Ui::multiSelect(
+    'committee_members',
+    ['ada' => 'Ada Lovelace', 'grace' => 'Grace Hopper'],
+    selected: ['ada'],
+    label: 'Committee members',
+);
+echo Ui::iconAction(Ui::icon('edit'), 'Edit member', tooltip: 'Edit this member');
+echo Ui::circularProgress(68, size: 'lg'); // Dynamic orange at 68%
+echo Ui::richTable(
+    [
+        ['key' => 'member.name', 'label' => 'Member', 'sortable' => true],
+        ['key' => 'status', 'label' => 'Status', 'formatter' => fn ($value) => Ui::badge($value, 'success')],
+    ],
+    [['id' => 1, 'member' => ['name' => 'Ada Lovelace'], 'status' => 'Active']],
+    actions: [['key' => 'edit', 'label' => 'Edit member', 'icon' => Ui::icon('edit'), 'tooltip' => 'Edit this member']],
+    options: ['title' => 'Members', 'selectable' => true, 'toolbar' => true],
+);
 ```
 
 Copy or serve `resources/css/eboard-ui.css` and `resources/js/eboard-ui.js` from your public directory.
@@ -94,11 +111,11 @@ echo Widget::widget(['component' => Ui::badge('Ready', 'success')]);
 ## Included components
 
 The package covers the complete STL component catalog: Accordion, Autocomplete,
-Avatar, Badge, Brand, Breadcrumbs, Button, Calendar, Callout, Card, Carousel,
+Avatar, Badge, Brand, Breadcrumbs, Button, Calendar, Callout, Card, Carousel, Circular Progress,
 Chart, Checkbox, Color Picker, Command, Composer, Context Menu, Date Picker,
 Dropdown, Editor, Empty State, Field, File Upload, Heading, Icon, Input, Kanban, Modal,
 Navbar, OTP Input, Pagination, Pillbox, Popover, Profile, Progress, Radio,
-Select, Separator, Skeleton, Slider, Stat Card, Switch, Table, Tabs, Text, Textarea,
+Select, Separator, Skeleton, Slider, Stat Card, Switch, Table, Advanced Table, Tabs, Text, Textarea,
 Time Picker, Timeline, Toast, Toggle, and Tooltip. Header and Sidebar layout
 primitives are included as well, including Workspace Shell and Workspace Sidebar.
 
