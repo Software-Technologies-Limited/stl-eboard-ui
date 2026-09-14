@@ -145,6 +145,11 @@
     if (multiSelectTrigger) {
       const root = multiSelectTrigger.closest('[data-stl-multiselect]');
       const panel = root?.querySelector('[data-stl-multiselect-panel]');
+      document.querySelectorAll('[data-stl-multiselect-panel]:not([hidden])').forEach(other => {
+        if (other === panel) return;
+        other.hidden = true;
+        other.closest('[data-stl-multiselect]').querySelector('[data-stl-multiselect-trigger]').setAttribute('aria-expanded', 'false');
+      });
       if (panel && !multiSelectTrigger.disabled) {
         panel.hidden = !panel.hidden;
         multiSelectTrigger.setAttribute('aria-expanded', String(!panel.hidden));
@@ -220,7 +225,7 @@
     value.replaceChildren(...selected.map(input => {
       const chip = document.createElement('span');
       chip.className = 'stl-multiselect__chip';
-      chip.textContent = input.closest('[data-stl-multiselect-option]').textContent.trim();
+      chip.textContent = input.closest('[data-stl-multiselect-option]').lastElementChild.textContent.trim();
       return chip;
     }));
   });
@@ -245,11 +250,11 @@
   document.addEventListener('change', (event) => {
     if (event.target.matches('[data-stl-table-select-all]')) {
       const table = event.target.closest('[data-stl-advanced-table]');
-      table?.querySelectorAll('[data-stl-table-select]').forEach(input => input.checked = event.target.checked);
+      table?.querySelectorAll('[data-stl-table-select]:not(:disabled)').forEach(input => input.checked = event.target.checked);
     }
     if (event.target.matches('[data-stl-table-select]')) {
       const table = event.target.closest('[data-stl-advanced-table]');
-      const inputs = [...table.querySelectorAll('[data-stl-table-select]')];
+      const inputs = [...table.querySelectorAll('[data-stl-table-select]:not(:disabled)')];
       const all = table.querySelector('[data-stl-table-select-all]');
       if (all) { all.checked = inputs.length > 0 && inputs.every(input => input.checked); all.indeterminate = !all.checked && inputs.some(input => input.checked); }
     }
@@ -274,8 +279,12 @@
     rows.sort((a, b) => {
       const aText = a.querySelector(`[data-stl-table-cell="${CSS.escape(key)}"]`)?.textContent.trim() || '';
       const bText = b.querySelector(`[data-stl-table-cell="${CSS.escape(key)}"]`)?.textContent.trim() || '';
-      const numeric = Number(aText.replace(/[^0-9.-]/g, '')) - Number(bText.replace(/[^0-9.-]/g, ''));
-      const result = Number.isFinite(numeric) && aText !== '' && bText !== '' ? numeric : aText.localeCompare(bText, undefined, { numeric: true });
+      const aNumber = aText.replace(/,/g, '');
+      const bNumber = bText.replace(/,/g, '');
+      const isNumeric = value => /^[-+]?(?:\d+(?:\.\d*)?|\.\d+)%?$/.test(value);
+      const result = isNumeric(aNumber) && isNumeric(bNumber)
+        ? parseFloat(aNumber) - parseFloat(bNumber)
+        : aText.localeCompare(bText, undefined, { numeric: true });
       return direction === 'ascending' ? result : -result;
     });
     rows.forEach(row => row.parentElement.appendChild(row));
@@ -284,17 +293,98 @@
   document.addEventListener('click', (event) => {
     const header = event.target.closest('[data-stl-table-sort]');
     if (header) sortAdvancedTable(header);
+    const row = event.target.closest('[data-stl-row-href]');
+    if (row && !event.target.closest('a, button, input, select, textarea, label, [contenteditable]')) {
+      window.location.assign(row.dataset.stlRowHref);
+    }
   });
 
+  document.addEventListener('keydown', (event) => {
+    if (event.target.matches('[data-stl-row-href]') && ['Enter', ' '].includes(event.key)) {
+      event.preventDefault();
+      window.location.assign(event.target.dataset.stlRowHref);
+    }
+  });
+
+  const initialiseControls = (root = document) => {
+    const find = selector => [ ...(root.matches?.(selector) ? [root] : []), ...root.querySelectorAll(selector) ];
+    find('[data-stl-multiselect]').forEach(control => {
+      if (control.dataset.stlEnhanced) return;
+      control.dataset.stlEnhanced = 'true';
+      control.querySelector('[data-stl-multiselect-panel]').hidden = true;
+      control.querySelector('[data-stl-multiselect-trigger]').setAttribute('aria-expanded', 'false');
+    });
+    find('[data-stl-advanced-table]').forEach(table => {
+      const inputs = [...table.querySelectorAll('[data-stl-table-select]:not(:disabled)')];
+      const all = table.querySelector('[data-stl-table-select-all]');
+      const selected = inputs.filter(input => input.checked).length;
+      if (all) {
+        all.checked = inputs.length > 0 && selected === inputs.length;
+        all.indeterminate = selected > 0 && selected < inputs.length;
+        all.disabled = inputs.length === 0;
+      }
+      const bulk = table.querySelector('[data-stl-table-bulk-actions]');
+      if (bulk) bulk.hidden = selected === 0;
+    });
+  };
+
+  let activeTooltip = null;
+  let tooltipOwner = null;
+  const hideTooltip = () => {
+    if (tooltipOwner) {
+      tooltipOwner.removeAttribute('data-stl-tooltip-floating');
+      const ids = (tooltipOwner.getAttribute('aria-describedby') || '').split(' ').filter(id => id && id !== 'stl-floating-tooltip');
+      if (ids.length) tooltipOwner.setAttribute('aria-describedby', ids.join(' '));
+      else tooltipOwner.removeAttribute('aria-describedby');
+    }
+    activeTooltip?.remove();
+    activeTooltip = null;
+    tooltipOwner = null;
+  };
+  const showTooltip = owner => {
+    hideTooltip();
+    if (!owner.dataset.tooltip) return;
+    tooltipOwner = owner;
+    activeTooltip = document.createElement('span');
+    activeTooltip.id = 'stl-floating-tooltip';
+    activeTooltip.className = 'stl-tooltip__floating';
+    activeTooltip.setAttribute('role', 'tooltip');
+    activeTooltip.textContent = owner.dataset.tooltip;
+    document.body.appendChild(activeTooltip);
+    owner.dataset.stlTooltipFloating = 'true';
+    owner.setAttribute('aria-describedby', `${owner.getAttribute('aria-describedby') || ''} stl-floating-tooltip`.trim());
+    const rect = owner.getBoundingClientRect();
+    const width = activeTooltip.offsetWidth;
+    const height = activeTooltip.offsetHeight;
+    activeTooltip.style.left = `${Math.max(8, Math.min(rect.left + rect.width / 2 - width / 2, window.innerWidth - width - 8))}px`;
+    activeTooltip.style.top = `${rect.top > height + 12 ? rect.top - height - 8 : rect.bottom + 8}px`;
+  };
+  document.addEventListener('pointerover', event => {
+    const owner = event.target.closest('.stl-tooltip[data-tooltip]');
+    if (owner && !owner.contains(event.relatedTarget)) showTooltip(owner);
+  });
+  document.addEventListener('pointerout', event => {
+    if (tooltipOwner?.contains(event.target) && !tooltipOwner.contains(event.relatedTarget)) hideTooltip();
+  });
+  document.addEventListener('focusin', event => {
+    const owner = event.target.closest('.stl-tooltip[data-tooltip]');
+    if (owner) showTooltip(owner);
+  });
+  document.addEventListener('focusout', hideTooltip);
+  document.addEventListener('keydown', event => { if (event.key === 'Escape') hideTooltip(); });
+  document.addEventListener('scroll', hideTooltip, true);
+  window.addEventListener('resize', hideTooltip);
+
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => initialiseToasts());
+    document.addEventListener('DOMContentLoaded', () => { initialiseToasts(); initialiseControls(); });
   } else {
     initialiseToasts();
+    initialiseControls();
   }
 
   new MutationObserver((records) => {
     records.forEach((record) => record.addedNodes.forEach((node) => {
-      if (node instanceof Element) initialiseToasts(node);
+      if (node instanceof Element) { initialiseToasts(node); initialiseControls(node); }
     }));
   }).observe(document.documentElement, { childList: true, subtree: true });
 })();

@@ -53,7 +53,7 @@ final class CircularProgress extends Component
         }
 
         $value = $this->number($this->value);
-        $max = $this->number($this->max, 100.0);
+        $max = max(0, $this->number($this->max, 100.0));
         $percentage = $max > 0 ? min(max(($value / $max) * 100, 0), 100) : 0;
         $size = self::SIZES[$this->size];
         $strokeWidth = self::STROKE_WIDTHS[$this->size];
@@ -61,7 +61,7 @@ final class CircularProgress extends Component
         $radius = $center - ($strokeWidth / 2);
         $circumference = 2 * M_PI * $radius;
         $offset = $circumference - (($percentage / 100) * $circumference);
-        [$stroke, $textColor] = $this->colorsFor($percentage);
+        [$stroke, $textColor, $textClass] = $this->colorsFor($percentage);
         $displayValue = $this->showRawValue ? number_format($value, 2, '.', '') : (string) round($percentage).'%';
 
         $style = '--stl-circular-progress-stroke:'.$stroke.';--stl-circular-progress-text:'.$textColor.';';
@@ -71,7 +71,7 @@ final class CircularProgress extends Component
             .'</svg>';
 
         if ($this->showValue) {
-            $content .= '<span class="stl-circular-progress__label">'.Html::escape($displayValue).'</span>';
+            $content .= '<span class="'.Html::escape(Html::classes('stl-circular-progress__label', $textClass)).'">'.Html::escape($displayValue).'</span>';
         }
 
         return '<span'.$this->attrs([
@@ -80,16 +80,16 @@ final class CircularProgress extends Component
             'role' => 'progressbar',
             'aria-valuemin' => '0',
             'aria-valuemax' => (string) $max,
-            'aria-valuenow' => (string) $value,
+            'aria-valuenow' => (string) min(max($value, 0), $max),
             'aria-valuetext' => $displayValue,
         ]).'>'.$content.'</span>';
     }
 
-    /** @return array{0: string, 1: string} */
+    /** @return array{0: string, 1: string, 2: string} */
     private function colorsFor(float $percentage): array
     {
         if (!$this->dynamicColor) {
-            return [self::VARIANT_COLORS[$this->variant], self::VARIANT_COLORS[$this->variant]];
+            return [self::VARIANT_COLORS[$this->variant], self::VARIANT_COLORS[$this->variant], ''];
         }
 
         $stops = $this->dynamicColorStops === [] ? [
@@ -101,11 +101,11 @@ final class CircularProgress extends Component
 
         foreach ($stops as $stop) {
             if ($percentage <= (float) ($stop['max'] ?? 0)) {
-                return [(string) ($stop['stroke'] ?? $this->dynamicFallbackStroke), $this->stopTextColor($stop)];
+                return [(string) ($stop['stroke'] ?? $this->dynamicFallbackStroke), $this->stopTextColor($stop), (string) ($stop['textClass'] ?? '')];
             }
         }
 
-        return [$this->dynamicFallbackStroke, $this->resolveTextColor($this->dynamicFallbackTextClass)];
+        return [$this->dynamicFallbackStroke, $this->resolveTextColor($this->dynamicFallbackTextClass), $this->dynamicFallbackTextClass];
     }
 
     /** @param array<string, mixed> $stop */
@@ -124,12 +124,12 @@ final class CircularProgress extends Component
             'text-red-700' => '#b91c1c',
             'text-orange-700' => '#c2410c',
             'text-green-700' => '#15803d',
-            default => $colorOrClass,
+            default => 'currentColor',
         };
     }
 
     private function number(string|int|float $value, float $fallback = 0.0): float
     {
-        return is_numeric($value) ? (float) $value : $fallback;
+        return is_numeric($value) && is_finite((float) $value) ? (float) $value : $fallback;
     }
 }

@@ -59,6 +59,71 @@ echo Ui::richTable(
 
 Copy or serve `resources/css/eboard-ui.css` and `resources/js/eboard-ui.js` from your public directory.
 
+## Enhanced form and table components
+
+Multiselect accepts either keyed labels or value/label records. Values submit as
+`owners[]`; checkboxes remain usable without JavaScript. `disabled` applies to
+both the trigger and submitted controls.
+
+```php
+echo Ui::multiSelect('owners', [
+    ['value' => 'hr', 'label' => 'Human Resources'],
+    ['value' => 'finance', 'label' => 'Finance'],
+], selected: ['hr'], label: 'Owners', placeholder: 'Choose owners');
+
+echo Ui::circularProgress(3, max: 5, size: 'sm', showRawValue: true);
+echo Ui::circularProgress(80, variant: 'success', dynamicColor: false);
+echo Ui::circularProgress(60, dynamicColorStops: [
+    ['max' => 50, 'stroke' => '#ef4444', 'textColor' => '#b91c1c'],
+    ['max' => 100, 'stroke' => '#22c55e', 'textClass' => 'text-green-700'],
+]);
+echo Ui::iconAction(Ui::icon('edit'), 'Edit risk', tooltip: 'Update this risk');
+```
+
+Circular progress clamps percentages and ARIA values. Default dynamic colors
+are red through 39%, orange through 79%, and green through 100%. Sizes are
+`xs`, `sm`, `md`, `lg`, and `xl`; line caps are `round`, `butt`, or `square`.
+Custom stops accept `max`, `stroke`, and optional `textColor` or `textClass`.
+
+Structured rows use the same renderer through `richTable` or `advancedTable`:
+
+```php
+$columns = [
+    ['key' => 'name', 'label' => 'Risk', 'accessor' => 'risk.name', 'sortable' => true],
+    ['key' => 'score', 'label' => 'Score', 'accessor' => fn ($row) => $row['score'],
+        'formatter' => fn ($value, $row) => Ui::circularProgress($value, max: 25)],
+    ['key' => 'internal', 'label' => 'Internal note', 'visible' => false],
+];
+$rows = [['id' => 1, 'risk' => ['name' => 'Service outage'], 'score' => 12]];
+$actions = [[
+    'key' => 'edit', 'label' => 'Edit risk', 'icon' => Ui::icon('edit'),
+    'tooltip' => 'Edit this risk', 'href' => fn ($row) => '/risks/'.$row['id'].'/edit',
+    'permission' => $canEdit, // Boolean or callable receiving the row; never a permission name.
+    'disabled' => fn ($row) => false,
+    'attributes' => ['class' => 'custom-action'],
+]];
+$options = ['title' => 'Risks', 'description' => 'Current register',
+    'density' => 'normal', 'variant' => 'bordered', 'toolbar' => true,
+    'selectable' => true, 'selectionName' => 'risk_ids', 'selected' => [1],
+    'bulkActions' => [Ui::button('Export selected')], 'clickableRows' => true];
+echo Ui::richTable($columns, $rows, actions: $actions, options: $options);
+echo Ui::advancedTable($columns, $rows, $actions, $options);
+
+// The original third argument remains HTML attributes for legacy rich tables.
+echo Ui::richTable(['Risk'], new \Stl\EboardUi\Components\HtmlFragment(
+    '<tr><td>Service outage</td></tr>'
+), ['class' => 'custom-table']);
+```
+
+`clickableRows` navigates to the first visible, permitted, enabled action URL.
+Interactive controls inside a row keep their own behavior. Permission checks
+are supplied by the application and must also be enforced by the server.
+Strings are escaped, including formatter results; only `Renderable` values
+are trusted HTML. Column visibility, sorting, selection, and action tooltips
+are enhanced by the existing JavaScript asset. Additional options include
+`striped`, `hoverable`, `toolbarActions`, `addAction`, `refreshHref`, `filter`,
+`emptyTitle`, `emptySubtitle`, `emptyAction`, `loading`, and `skeletonRows`.
+
 ## Theming
 
 STL eBoard UI follows Flux's public base/accent model with `stl-` namespacing.

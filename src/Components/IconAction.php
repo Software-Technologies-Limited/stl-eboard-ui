@@ -24,12 +24,7 @@ final class IconAction extends Component
     {
         $tooltip = $this->tooltip ?? $this->label;
 
-        return sprintf(
-            '<button%1$s aria-label="%2$s" data-tooltip="%3$s"><span aria-hidden="true">%4$s</span></button>',
-            $this->attrs(['class' => 'stl-icon-action stl-tooltip', 'type' => 'button']),
-            Html::escape($this->label),
-            Html::escape($tooltip),
-            $this->icon instanceof Renderable ? $this->icon->render() : Html::escape($this->icon),
-        );
+        return '<button'.$this->with(['aria-label' => $this->label, 'data-tooltip' => $tooltip])->attrs(['class' => 'stl-icon-action stl-tooltip', 'type' => 'button'])
+            .'><span aria-hidden="true">'.($this->icon instanceof Renderable ? $this->icon->render() : Html::escape($this->icon)).'</span></button>';
     }
 }

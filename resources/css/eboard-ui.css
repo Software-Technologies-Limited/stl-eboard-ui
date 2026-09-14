@@ -3,6 +3,25 @@
 @import url('./filter-form.css');
 @import url('./toast.css');
 
+@layer stl-eboard-ui-extended {
+  .stl-multiselect [hidden], .stl-advanced-table [hidden] { display: none !important; }
+  .stl-multiselect:not([data-stl-enhanced]) .stl-multiselect__panel { position: static; box-shadow: none; }
+  .stl-multiselect:not([data-stl-enhanced]) .stl-multiselect__search { display: none; }
+  .stl-multiselect__option:has(input:focus-visible) { outline: 2px solid var(--stl-color-primary); outline-offset: -2px; }
+  .stl-multiselect__option:has(input:disabled) { cursor: not-allowed; opacity: .5; }
+  .stl-multiselect-field { min-width: 0; }
+  .stl-multiselect .stl-multiselect__panel { box-sizing: border-box; width: 100%; }
+  .stl-multiselect .stl-multiselect__search { min-width: 0; width: 100%; box-sizing: border-box; }
+  .stl-tooltip[data-stl-tooltip-floating]:after { display: none; }
+  .stl-tooltip__floating { background: #172033; border-radius: .35rem; color: #fff; font: 500 .7rem/1.4 system-ui; max-width: calc(100vw - 2rem); padding: .35rem .5rem; pointer-events: none; position: fixed; z-index: 10000; }
+  .stl-advanced-table .stl-advanced-table__actions-heading { text-align: center; }
+  .stl-advanced-table [data-stl-row-href]:focus-visible, .stl-advanced-table [data-stl-table-sort]:focus-visible { outline: 2px solid var(--stl-color-primary); outline-offset: -2px; }
+  .stl-advanced-table .stl-icon-action:disabled { cursor: not-allowed; opacity: .5; }
+  .stl-advanced-table .stl-advanced-table__column-picker { z-index: 30; }
+  .stl-advanced-table[data-stl-advanced-table] { overflow: visible; }
+  @media (prefers-reduced-motion: reduce) { .stl-circular-progress .stl-circular-progress__value { transition: none; } }
+}
+
 @layer stl-eboard-ui {
   :root {
     /* Flux-compatible base scale. Zinc is the default neutral family. */

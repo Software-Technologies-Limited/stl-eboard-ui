@@ -35,7 +35,7 @@ final class AdvancedTable extends Component
         $columns = $this->columns();
         $selectable = (bool) $this->option('selectable', false);
         $visibleActions = $this->hasVisibleActions();
-        $columnCount = count($columns) + ($selectable ? 1 : 0) + ($visibleActions ? 1 : 0);
+        $columnCount = max(1, count(array_filter($columns, static fn (array $column): bool => ($column['visible'] ?? true) !== false)) + ($selectable ? 1 : 0) + ($visibleActions ? 1 : 0));
         $tableId = 'stl-advanced-table-'.spl_object_id($this);
         $header = $this->header($tableId, $columns, $selectable, $visibleActions);
         $body = $this->body($columns, $selectable, $visibleActions, $columnCount);
@@ -71,7 +71,7 @@ final class AdvancedTable extends Component
         }
         foreach ($columns as $column) {
             $sortable = (bool) ($column['sortable'] ?? false);
-            $html .= '<th'.($sortable ? ' data-stl-table-sort data-key="'.Html::escape((string) $column['key']).'" tabindex="0" role="button" aria-sort="none"' : '').'>'
+            $html .= '<th scope="col" data-key="'.Html::escape((string) $column['key']).'"'.(($column['visible'] ?? true) === false ? ' hidden' : '').($sortable ? ' data-stl-table-sort tabindex="0" aria-sort="none"' : '').'>'
                 .Html::escape((string) $column['label']).($sortable ? '<span class="stl-advanced-table__sort" aria-hidden="true">↕</span>' : '').'</th>';
         }
         if ($actions) $html .= '<th class="stl-advanced-table__actions-heading">Actions</th>';
@@ -91,11 +91,12 @@ final class AdvancedTable extends Component
         $html = '';
         foreach ($this->rows as $index => $row) {
             $rowKey = (string) ($this->value($row, $keyField) ?? $index);
-            $html .= '<tr data-stl-table-row'.($this->option('clickableRows', false) ? ' tabindex="0"' : '').'>';
+            $rowHref = $this->rowHref($row);
+            $html .= '<tr data-stl-table-row'.($rowHref !== null ? ' data-stl-row-href="'.Html::escape($rowHref).'" tabindex="0"' : '').'>';
             if ($selectable) $html .= '<td class="stl-advanced-table__selection"><input type="checkbox" name="'.Html::escape($name).'" value="'.Html::escape($rowKey).'"'.(isset($selected[$rowKey]) ? ' checked' : '').' data-stl-table-select></td>';
             foreach ($columns as $column) {
                 $value = $this->cellValue($row, $column);
-                $html .= '<td data-stl-table-cell="'.Html::escape((string) $column['key']).'">'.$this->content($value).'</td>';
+                $html .= '<td data-stl-table-cell="'.Html::escape((string) $column['key']).'"'.(($column['visible'] ?? true) === false ? ' hidden' : '').'>'.$this->content($value).'</td>';
             }
             if ($actions) $html .= '<td class="stl-advanced-table__actions">'.$this->actions($row).'</td>';
             $html .= '</tr>';
@@ -109,7 +110,7 @@ final class AdvancedTable extends Component
         $out = '';
         for ($row = 0; $row < max(1, (int) $this->option('skeletonRows', 5)); $row++) {
             $out .= '<tr class="stl-advanced-table__skeleton">'.($selectable ? '<td><span></span></td>' : '');
-            foreach ($columns as $_) $out .= '<td><span></span></td>';
+            foreach ($columns as $column) $out .= '<td data-stl-table-cell="'.Html::escape((string) $column['key']).'"'.(($column['visible'] ?? true) === false ? ' hidden' : '').'><span></span></td>';
             if ($actions) $out .= '<td><span></span><span></span></td>';
             $out .= '</tr>';
         }
@@ -125,15 +126,18 @@ final class AdvancedTable extends Component
     /** @param array<int, array<string, mixed>> $columns */
     private function toolbar(string $id, array $columns): string
     {
-        if (!(bool) $this->option('toolbar', false)) return '';
-        $toggle = ''; foreach ($columns as $column) if (($column['toggleable'] ?? true) !== false) $toggle .= '<label><input type="checkbox" checked data-stl-table-column-toggle value="'.Html::escape((string) $column['key']).'">'.Html::escape((string) $column['label']).'</label>';
+        $bulk = $this->renderMany($this->option('bulkActions', []));
+        $bulkHidden = (array) $this->option('selected', []) === [] ? ' hidden' : '';
+        if (!(bool) $this->option('toolbar', false) && !$this->option('toolbarActions') && !$this->option('addAction') && !$this->option('refreshHref') && !$this->option('filter')) {
+            return $bulk === '' ? '' : '<div class="stl-advanced-table__bulk-actions" data-stl-table-bulk-actions'.$bulkHidden.'>'.$bulk.'</div>';
+        }
+        $toggle = ''; foreach ($columns as $column) if (($column['toggleable'] ?? true) !== false) $toggle .= '<label><input type="checkbox"'.(($column['visible'] ?? true) !== false ? ' checked' : '').' data-stl-table-column-toggle value="'.Html::escape((string) $column['key']).'">'.Html::escape((string) $column['label']).'</label>';
         $extra = $this->renderMany($this->option('toolbarActions', []));
         $filter = $this->content($this->option('filter', ''));
-        $bulk = $this->renderMany($this->option('bulkActions', []));
         $add = $this->content($this->option('addAction', ''));
         $refresh = $this->option('refreshHref') ? '<a class="stl-button stl-button--secondary stl-button--sm" href="'.Html::escape((string) $this->option('refreshHref')).'">Refresh</a>' : '';
         return '<div class="stl-advanced-table__toolbar">'.$filter.'<div>'.$extra.$refresh.$add.'<details class="stl-advanced-table__column-picker"><summary>Columns</summary><div>'.$toggle.'</div></details></div></div>'
-            .($bulk === '' ? '' : '<div class="stl-advanced-table__bulk-actions" data-stl-table-bulk-actions hidden>'.$bulk.'</div>');
+            .($bulk === '' ? '' : '<div class="stl-advanced-table__bulk-actions" data-stl-table-bulk-actions'.$bulkHidden.'>'.$bulk.'</div>');
     }
 
     private function empty(): string
@@ -149,19 +153,47 @@ final class AdvancedTable extends Component
             $label = (string) ($action['label'] ?? $action['key']);
             $tooltip = $action['tooltip'] ?? $label;
             $tooltip = is_callable($tooltip) ? $tooltip($row) : $tooltip;
-            $disabled = $this->resolve($action['disabled'] ?? false, $row) ? ' disabled' : '';
-            $attributes = Html::attributes((array) ($action['attributes'] ?? []));
+            $disabled = (bool) $this->resolve($action['disabled'] ?? false, $row);
+            $attributes = (array) ($action['attributes'] ?? []);
+            $attributes['class'] = Html::classes('stl-icon-action stl-tooltip', (string) ($attributes['class'] ?? ''));
+            $attributes['aria-label'] = $label;
+            $attributes['data-tooltip'] = (string) $tooltip;
+            $attributes['data-stl-action-key'] = (string) ($action['key'] ?? $label);
             $icon = $action['icon'] ?? null;
             $body = $icon instanceof Renderable ? $icon->render() : ($icon === null ? Html::escape($label) : Html::escape((string) $icon));
             $href = $action['href'] ?? null; $href = is_callable($href) ? $href($row) : $href;
-            $html .= $href ? '<a class="stl-icon-action stl-tooltip" href="'.Html::escape((string) $href).'" aria-label="'.Html::escape($label).'" data-tooltip="'.Html::escape((string) $tooltip).'">'.$body.'</a>' : '<button class="stl-icon-action stl-tooltip" type="button" aria-label="'.Html::escape($label).'" data-tooltip="'.Html::escape((string) $tooltip).'"'.$disabled.$attributes.'>'.$body.'</button>';
+            if ($href && !$disabled) {
+                $attributes['href'] = (string) $href;
+                $html .= '<a'.Html::attributes($attributes).'><span aria-hidden="true">'.$body.'</span></a>';
+            } else {
+                unset($attributes['href']);
+                $attributes['type'] = 'button';
+                $attributes['disabled'] = $disabled;
+                $html .= '<button'.Html::attributes($attributes).'><span aria-hidden="true">'.$body.'</span></button>';
+            }
         }
         return $html.'</div>';
     }
 
     private function allowed(array $action, array|object $row): bool
     {
-        return (bool) $this->resolve($action['visible'] ?? true, $row) && (bool) $this->resolve($action['permission'] ?? true, $row);
+        $permission = $this->resolve($action['permission'] ?? true, $row);
+        return (bool) $this->resolve($action['visible'] ?? true, $row) && is_bool($permission) && $permission;
+    }
+    private function rowHref(array|object $row): ?string
+    {
+        if (!$this->option('clickableRows', false)) {
+            return null;
+        }
+        foreach ($this->actions as $action) {
+            if ($this->allowed($action, $row) && !$this->resolve($action['disabled'] ?? false, $row)) {
+                $href = $this->resolve($action['href'] ?? null, $row);
+                if ($href) {
+                    return (string) $href;
+                }
+            }
+        }
+        return null;
     }
     private function resolve(mixed $value, array|object $row): mixed { return is_callable($value) ? $value($row) : $value; }
     private function cellValue(array|object $row, array $column): mixed { $value = isset($column['accessor']) ? (is_callable($column['accessor']) ? ($column['accessor'])($row) : $this->value($row, (string) $column['accessor'])) : $this->value($row, (string) $column['key']); return isset($column['formatter']) && is_callable($column['formatter']) ? ($column['formatter'])($value, $row) : $value; }
