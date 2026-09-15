@@ -11,10 +11,11 @@ use Stl\EboardUi\Support\Html;
 final class MultiSelect extends Component
 {
     private static int $sequence = 0;
+
     /**
      * @param  array<array-key, string>|array<int, array{value: string|int, label: string}>  $options
      * @param  array<int, string|int>  $selected
-     * @param  array<string, mixed>  $attributes Attributes applied to the trigger button.
+     * @param  array<string, mixed>  $attributes  Attributes applied to the trigger button.
      */
     public function __construct(
         private readonly string $name,
@@ -30,7 +31,7 @@ final class MultiSelect extends Component
     public function render(): string
     {
         $id = (string) ($this->attributes['id'] ?? 'stl-multiselect-'.++self::$sequence);
-        $disabled = !empty($this->attributes['disabled']);
+        $disabled = ! empty($this->attributes['disabled']);
         $options = $this->normaliseOptions();
         $selected = array_fill_keys(array_map(static fn (string|int $value): string => (string) $value, $this->selected), true);
         $selectedLabels = [];
@@ -72,6 +73,7 @@ final class MultiSelect extends Component
         foreach ($this->options as $value => $option) {
             if (is_array($option) && array_key_exists('value', $option) && array_key_exists('label', $option)) {
                 $normalised[] = ['value' => (string) $option['value'], 'label' => (string) $option['label']];
+
                 continue;
             }
             if (is_array($option) || is_object($option)) {
@@ -79,10 +81,12 @@ final class MultiSelect extends Component
             }
             if (is_string($value) || is_int($value)) {
                 $normalised[] = ['value' => (string) $value, 'label' => (string) $option];
+
                 continue;
             }
             throw new InvalidArgumentException('MultiSelect options must be value => label pairs or arrays with value and label keys.');
         }
+
         return $normalised;
     }
 

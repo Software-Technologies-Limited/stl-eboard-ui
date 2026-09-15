@@ -4,11 +4,18 @@ declare(strict_types=1);
 
 namespace Stl\EboardUi\Bridge\Laravel;
 
+use Illuminate\Foundation\AliasLoader;
 use Illuminate\Support\ServiceProvider;
+use Stl\EboardUi\Ui;
 
 if (class_exists(ServiceProvider::class)) {
     final class EboardUiServiceProvider extends ServiceProvider
     {
+        public function register(): void
+        {
+            AliasLoader::getInstance()->alias('Ui', Ui::class);
+        }
+
         public function boot(): void
         {
             $this->publishes([

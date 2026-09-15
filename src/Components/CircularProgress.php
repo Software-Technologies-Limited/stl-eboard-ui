@@ -11,7 +11,9 @@ use Stl\EboardUi\Support\Html;
 final class CircularProgress extends Component
 {
     private const SIZES = ['xs' => 42, 'sm' => 48, 'md' => 64, 'lg' => 80, 'xl' => 96];
+
     private const STROKE_WIDTHS = ['xs' => 2.5, 'sm' => 4.0, 'md' => 5.0, 'lg' => 6.0, 'xl' => 7.0];
+
     private const VARIANT_COLORS = [
         'default' => 'var(--stl-color-primary)',
         'success' => '#22c55e',
@@ -42,13 +44,13 @@ final class CircularProgress extends Component
 
     public function render(): string
     {
-        if (!isset(self::SIZES[$this->size])) {
+        if (! isset(self::SIZES[$this->size])) {
             throw new InvalidArgumentException("Unknown circular progress size [{$this->size}].");
         }
-        if (!isset(self::VARIANT_COLORS[$this->variant])) {
+        if (! isset(self::VARIANT_COLORS[$this->variant])) {
             throw new InvalidArgumentException("Unknown circular progress variant [{$this->variant}].");
         }
-        if (!in_array($this->strokeLinecap, ['butt', 'round', 'square'], true)) {
+        if (! in_array($this->strokeLinecap, ['butt', 'round', 'square'], true)) {
             throw new InvalidArgumentException("Unknown circular progress line cap [{$this->strokeLinecap}].");
         }
 
@@ -88,7 +90,7 @@ final class CircularProgress extends Component
     /** @return array{0: string, 1: string, 2: string} */
     private function colorsFor(float $percentage): array
     {
-        if (!$this->dynamicColor) {
+        if (! $this->dynamicColor) {
             return [self::VARIANT_COLORS[$this->variant], self::VARIANT_COLORS[$this->variant], ''];
         }
 

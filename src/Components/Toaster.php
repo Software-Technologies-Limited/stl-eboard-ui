@@ -11,8 +11,8 @@ final class Toaster extends Component
     private const POSITIONS = ['top-left', 'top-center', 'top-right', 'bottom-left', 'bottom-center', 'bottom-right'];
 
     /**
-     * @param array<int, array{title: string, message?: string|null, tone?: string, timeout?: int}> $toasts
-     * @param array<string, mixed> $attributes
+     * @param  array<int, array{title: string, message?: string|null, tone?: string, timeout?: int}>  $toasts
+     * @param  array<string, mixed>  $attributes
      */
     public function __construct(
         private readonly array $toasts = [],
@@ -51,8 +51,8 @@ final class Toaster extends Component
     /**
      * Build the standard eBoard notifications from Laravel-style flash data.
      *
-     * @param array<string, mixed> $flash
-     * @param array<string, mixed> $attributes
+     * @param  array<string, mixed>  $flash
+     * @param  array<string, mixed>  $attributes
      */
     public static function fromFlash(array $flash, string $position = 'top-center', array $attributes = []): self
     {

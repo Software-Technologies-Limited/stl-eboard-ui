@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Stl\EboardUi;
 
 use Stl\EboardUi\Components\Accordion;
-use Stl\EboardUi\Components\Alert;
 use Stl\EboardUi\Components\AdvancedTable;
+use Stl\EboardUi\Components\Alert;
 use Stl\EboardUi\Components\Badge;
 use Stl\EboardUi\Components\Button;
 use Stl\EboardUi\Components\Card;
-use Stl\EboardUi\Components\CircularProgress;
 use Stl\EboardUi\Components\Checkbox;
+use Stl\EboardUi\Components\CircularProgress;
 use Stl\EboardUi\Components\DataTable;
 use Stl\EboardUi\Components\EmptyState;
 use Stl\EboardUi\Components\FilterForm;
@@ -27,9 +27,9 @@ use Stl\EboardUi\Components\Panel;
 use Stl\EboardUi\Components\RichTable;
 use Stl\EboardUi\Components\StatCard;
 use Stl\EboardUi\Components\Tabs;
-use Stl\EboardUi\Components\Toolbar;
 use Stl\EboardUi\Components\Toast;
 use Stl\EboardUi\Components\Toaster;
+use Stl\EboardUi\Components\Toolbar;
 use Stl\EboardUi\Components\WorkspaceShell;
 use Stl\EboardUi\Components\WorkspaceSidebar;
 use Stl\EboardUi\Contracts\Renderable;
@@ -153,7 +153,7 @@ final class Ui
     /**
      * @param  array<array-key, string>|array<int, array{value: string|int, label: string}>  $options
      * @param  array<int, string|int>  $selected
-     * @param  array<string, mixed>  $attributes Attributes applied to the trigger button.
+     * @param  array<string, mixed>  $attributes  Attributes applied to the trigger button.
      */
     public static function multiSelect(string $name, array $options, array $selected = [], ?string $label = null, string $placeholder = 'Select options', array $attributes = []): MultiSelect
     {

@@ -179,7 +179,7 @@ final class ExtendedComponents
             $out .= '<a href="'.Html::escape($href).'">'.Html::escape($label).'</a>';
         }
 
-return '<nav class="'.$class.'"'.Html::attributes($attributes).'>'.$out.'</nav>';
+        return '<nav class="'.$class.'"'.Html::attributes($attributes).'>'.$out.'</nav>';
     }
 
     private static function otp(string $name, int $length, array $attributes): string
@@ -189,7 +189,7 @@ return '<nav class="'.$class.'"'.Html::attributes($attributes).'>'.$out.'</nav>'
             $out .= '<input inputmode="numeric" pattern="[0-9]" maxlength="1" name="'.Html::escape($name).'[]" aria-label="Digit '.($i + 1).'">';
         }
 
-return '<div class="stl-otp" data-stl-otp'.Html::attributes($attributes).'>'.$out.'</div>';
+        return '<div class="stl-otp" data-stl-otp'.Html::attributes($attributes).'>'.$out.'</div>';
     }
 
     private static function pagination(int $current, int $pages, string $base): string
@@ -199,7 +199,7 @@ return '<div class="stl-otp" data-stl-otp'.Html::attributes($attributes).'>'.$ou
             $out .= '<a href="'.Html::escape($base.$i).'"'.($i === $current ? ' aria-current="page"' : '').'>'.$i.'</a>';
         }
 
-return '<nav class="stl-pagination" aria-label="Pagination">'.$out.'</nav>';
+        return '<nav class="stl-pagination" aria-label="Pagination">'.$out.'</nav>';
     }
 
     private static function pillbox(array $items, string $name, array $attributes): string
@@ -209,7 +209,7 @@ return '<nav class="stl-pagination" aria-label="Pagination">'.$out.'</nav>';
             $out .= '<span>'.Html::escape($item).'<input type="hidden" name="'.Html::escape($name).'[]" value="'.Html::escape($item).'"><button type="button" aria-label="Remove '.Html::escape($item).'">×</button></span>';
         }
 
-return '<div class="stl-pillbox"'.Html::attributes($attributes).'>'.$out.'<input type="text" placeholder="Add item…" aria-label="Add item"></div>';
+        return '<div class="stl-pillbox"'.Html::attributes($attributes).'>'.$out.'<input type="text" placeholder="Add item…" aria-label="Add item"></div>';
     }
 
     private static function select(string $name, array $options, string $label, array $attributes): string
@@ -219,7 +219,7 @@ return '<div class="stl-pillbox"'.Html::attributes($attributes).'>'.$out.'<input
             $out .= '<option value="'.Html::escape(is_string($value) ? $value : $text).'">'.Html::escape($text).'</option>';
         }
 
-return '<label class="stl-field"><span class="stl-field__label">'.Html::escape($label).'</span><select class="stl-select" name="'.Html::escape($name).'"'.Html::attributes($attributes).'>'.$out.'</select></label>';
+        return '<label class="stl-field"><span class="stl-field__label">'.Html::escape($label).'</span><select class="stl-select" name="'.Html::escape($name).'"'.Html::attributes($attributes).'>'.$out.'</select></label>';
     }
 
     private static function table(array $columns, array $rows, array $attributes): string
@@ -235,7 +235,7 @@ return '<label class="stl-field"><span class="stl-field__label">'.Html::escape($
             } $body .= '</tr>';
         }
 
-return '<div class="stl-table-wrap"><table class="stl-table"'.Html::attributes($attributes).'><thead><tr>'.$head.'</tr></thead><tbody>'.$body.'</tbody></table></div>';
+        return '<div class="stl-table-wrap"><table class="stl-table"'.Html::attributes($attributes).'><thead><tr>'.$head.'</tr></thead><tbody>'.$body.'</tbody></table></div>';
     }
 
     private static function content(mixed $content): string
@@ -254,7 +254,7 @@ return '<div class="stl-table-wrap"><table class="stl-table"'.Html::attributes($
             $panels .= '<section id="'.$id.'" role="tabpanel" aria-labelledby="'.$id.'-button"'.($selected ? '' : ' hidden').'>'.Html::escape($content).'</section>';
         }
 
-return '<div class="stl-tabs" data-stl-tabs'.Html::attributes($attributes).'><div role="tablist">'.$buttons.'</div>'.$panels.'</div>';
+        return '<div class="stl-tabs" data-stl-tabs'.Html::attributes($attributes).'><div role="tablist">'.$buttons.'</div>'.$panels.'</div>';
     }
 
     private static function timeline(array $items, array $attributes): string
@@ -264,6 +264,6 @@ return '<div class="stl-tabs" data-stl-tabs'.Html::attributes($attributes).'><di
             $out .= '<li><i></i><div><strong>'.Html::escape($item['title'] ?? '').'</strong><p>'.Html::escape($item['text'] ?? '').'</p><small>'.Html::escape($item['time'] ?? '').'</small></div></li>';
         }
 
-return '<ol class="stl-timeline"'.Html::attributes($attributes).'>'.$out.'</ol>';
+        return '<ol class="stl-timeline"'.Html::attributes($attributes).'>'.$out.'</ol>';
     }
 }
