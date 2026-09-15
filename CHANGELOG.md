@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.6.4 - 2026-09-15
+
+- Add the public `Ui::html()` factory for explicitly trusted HTML fragments used in component composition and table formatters.
+
 All notable changes to this project are documented in this file.
 
 ## [1.2.0](https://github.com/Software-Technologies-Limited/stl-eboard-ui/compare/v1.1.0...v1.2.0) (2026-09-14)

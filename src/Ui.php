@@ -40,6 +40,12 @@ final class Ui
     {
         return ExtendedComponents::make($name, $arguments);
     }
+
+    public static function html(string $html): HtmlFragment
+    {
+        return new HtmlFragment($html);
+    }
+
     public static function button(string $label, string $variant = 'primary', string $size = 'md', array $attributes = []): Button
     {
         return new Button($label, $variant, $size, $attributes);
