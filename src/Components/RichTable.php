@@ -25,12 +25,12 @@ final class RichTable extends Component
     public function render(): string
     {
         $headers = implode('', array_map(
-            static fn (string $header): string => '<th scope="col">'.Html::escape($header).'</th>',
+            fn (string $header): string => '<th'.$this->partAttrs('header', ['scope' => 'col']).'>'.Html::escape($header).'</th>',
             $this->headers,
         ));
         $body = $this->body instanceof Renderable ? $this->body->render() : Html::escape($this->body);
 
-        return '<div'.$this->attrs(['class' => 'stl-rich-table']).'><table><thead><tr>'
-            .$headers.'</tr></thead><tbody>'.$body.'</tbody></table></div>';
+        return '<div'.$this->attrs(['class' => 'stl-rich-table']).'><table'.$this->partAttrs('table').'><thead'.$this->partAttrs('thead').'><tr'.$this->partAttrs('headerRow').'>'
+            .$headers.'</tr></thead><tbody'.$this->partAttrs('tbody').'>'.$body.'</tbody></table></div>';
     }
 }

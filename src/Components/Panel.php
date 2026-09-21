@@ -26,9 +26,9 @@ final class Panel extends Component
     public function render(): string
     {
         return '<section'.$this->attrs(['class' => 'stl-panel']).'>'
-            .'<header class="stl-panel__header"><h2>'.Html::escape($this->title).'</h2>'
-            .'<div class="stl-panel__actions">'.$this->renderActions().'</div></header>'
-            .'<div class="stl-panel__body">'.$this->renderContent($this->body).'</div></section>';
+            .'<header'.$this->partAttrs('header', ['class' => 'stl-panel__header']).'><h2'.$this->partAttrs('title').'>'.Html::escape($this->title).'</h2>'
+            .'<div'.$this->partAttrs('actions', ['class' => 'stl-panel__actions']).'>'.$this->renderActions().'</div></header>'
+            .'<div'.$this->partAttrs('body', ['class' => 'stl-panel__body']).'>'.$this->renderContent($this->body).'</div></section>';
     }
 
     private function renderActions(): string

@@ -9,13 +9,30 @@ use Stl\EboardUi\Support\Html;
 
 abstract class Component implements Renderable
 {
-    /** @param array<string, mixed> $attributes */
-    public function __construct(protected array $attributes = []) {}
+    /** @var array<string, array<string, mixed>> */
+    protected array $parts = [];
+
+    /**
+     * Attributes apply to the component's primary element. The optional `parts`
+     * map applies attributes directly to its named children, for example:
+     * ['parts' => ['label' => ['class' => 'text-sm font-bold']]].
+     *
+     * @param array<string, mixed> $attributes
+     */
+    public function __construct(protected array $attributes = [])
+    {
+        $this->parts = (array) ($attributes['parts'] ?? []);
+        unset($this->attributes['parts']);
+    }
 
     /** @param array<string, mixed> $attributes */
     public function with(array $attributes): static
     {
         $clone = clone $this;
+        if (isset($attributes['parts'])) {
+            $clone->parts = array_replace_recursive($clone->parts, (array) $attributes['parts']);
+            unset($attributes['parts']);
+        }
         $clone->attributes = array_replace($clone->attributes, $attributes);
 
         return $clone;
@@ -24,12 +41,13 @@ abstract class Component implements Renderable
     /** @param array<string, mixed> $defaults */
     protected function attrs(array $defaults = []): string
     {
-        $attributes = array_replace($defaults, $this->attributes);
-        if (isset($defaults['class'], $this->attributes['class'])) {
-            $attributes['class'] = Html::classes((string) $defaults['class'], (string) $this->attributes['class']);
-        }
+        return Html::attributes(Html::mergeAttributes($defaults, $this->attributes));
+    }
 
-        return Html::attributes($attributes);
+    /** @param array<string, mixed> $defaults */
+    protected function partAttrs(string $part, array $defaults = []): string
+    {
+        return Html::attributes(Html::mergeAttributes($defaults, $this->parts[$part] ?? []));
     }
 
     final public function __toString(): string

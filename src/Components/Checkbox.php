@@ -17,6 +17,6 @@ final class Checkbox extends Component
 
     public function render(): string
     {
-        return '<label class="stl-checkbox"><input'.$this->attrs(['class' => 'stl-checkbox__input', 'type' => 'checkbox', 'name' => $this->name, 'value' => '1', 'checked' => $this->checked]).'><span>'.Html::escape($this->label).'</span></label>';
+        return '<label'.$this->partAttrs('field', ['class' => 'stl-checkbox']).'><input'.$this->attrs(['class' => 'stl-checkbox__input', 'type' => 'checkbox', 'name' => $this->name, 'value' => '1', 'checked' => $this->checked]).'><span'.$this->partAttrs('label').'>'.Html::escape($this->label).'</span></label>';
     }
 }

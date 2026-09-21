@@ -24,14 +24,14 @@ final class Input extends Component
     {
         $id = (string) ($this->attributes['id'] ?? 'stl-'.preg_replace('/[^a-z0-9_-]+/i', '-', $this->name));
         $errorId = $id.'-error';
-        $label = $this->label === null ? '' : '<label class="stl-field__label" for="'.Html::escape($id).'">'.Html::escape($this->label).'</label>';
-        $error = $this->error === null ? '' : '<span class="stl-field__error" id="'.Html::escape($errorId).'">'.Html::escape($this->error).'</span>';
+        $label = $this->label === null ? '' : '<label'.$this->partAttrs('label', ['class' => 'stl-field__label', 'for' => $id]).'>'.Html::escape($this->label).'</label>';
+        $error = $this->error === null ? '' : '<span'.$this->partAttrs('error', ['class' => 'stl-field__error', 'id' => $errorId]).'>'.Html::escape($this->error).'</span>';
         $defaults = ['class' => 'stl-input', 'id' => $id, 'name' => $this->name, 'type' => $this->type];
         if ($this->error !== null) {
             $defaults['aria-invalid'] = 'true';
             $defaults['aria-describedby'] = $errorId;
         }
 
-        return '<div class="stl-field">'.$label.'<input'.$this->attrs($defaults).'>'.$error.'</div>';
+        return '<div'.$this->partAttrs('field', ['class' => 'stl-field']).'>'.$label.'<input'.$this->attrs($defaults).'>'.$error.'</div>';
     }
 }

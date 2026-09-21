@@ -47,7 +47,7 @@ final class AdvancedTable extends Component
         return '<section'.$this->attrs(['class' => $classes, 'data-stl-advanced-table' => true]).'>'
             .$this->intro()
             .$this->toolbar($tableId, $columns)
-            .'<div class="stl-advanced-table__scroll"><table><thead>'.$header.'</thead><tbody>'.$body.'</tbody></table></div>'
+            .'<div'.$this->partAttrs('scroll', ['class' => 'stl-advanced-table__scroll']).'><table'.$this->partAttrs('table').'><thead'.$this->partAttrs('thead').'>'.$header.'</thead><tbody'.$this->partAttrs('tbody').'>'.$body.'</tbody></table></div>'
             .'</section>';
     }
 
@@ -66,17 +66,17 @@ final class AdvancedTable extends Component
     /** @param array<int, array<string, mixed>> $columns */
     private function header(string $tableId, array $columns, bool $selectable, bool $actions): string
     {
-        $html = '<tr>';
+        $html = '<tr'.$this->partAttrs('headerRow').'>';
         if ($selectable) {
-            $html .= '<th class="stl-advanced-table__selection"><input type="checkbox" aria-label="Select all rows" data-stl-table-select-all></th>';
+            $html .= '<th'.$this->partAttrs('header', ['class' => 'stl-advanced-table__selection']).'><input type="checkbox" aria-label="Select all rows" data-stl-table-select-all></th>';
         }
         foreach ($columns as $column) {
             $sortable = (bool) ($column['sortable'] ?? false);
-            $html .= '<th scope="col" data-key="'.Html::escape((string) $column['key']).'"'.(($column['visible'] ?? true) === false ? ' hidden' : '').($sortable ? ' data-stl-table-sort tabindex="0" aria-sort="none"' : '').'>'
+            $html .= '<th'.$this->partAttrs('header', ['scope' => 'col', 'data-key' => (string) $column['key']]).(($column['visible'] ?? true) === false ? ' hidden' : '').($sortable ? ' data-stl-table-sort tabindex="0" aria-sort="none"' : '').'>'
                 .Html::escape((string) $column['label']).($sortable ? '<span class="stl-advanced-table__sort" aria-hidden="true">↕</span>' : '').'</th>';
         }
         if ($actions) {
-            $html .= '<th class="stl-advanced-table__actions-heading">Actions</th>';
+            $html .= '<th'.$this->partAttrs('header', ['class' => 'stl-advanced-table__actions-heading']).'>Actions</th>';
         }
 
         return $html.'</tr>';
@@ -89,7 +89,7 @@ final class AdvancedTable extends Component
             return $this->skeleton($columns, $selectable, $actions);
         }
         if ($this->rows === []) {
-            return '<tr class="stl-advanced-table__empty"><td colspan="'.$columnCount.'">'.$this->empty().'</td></tr>';
+            return '<tr'.$this->partAttrs('row', ['class' => 'stl-advanced-table__empty']).'><td'.$this->partAttrs('cell', ['colspan' => $columnCount]).'>'.$this->empty().'</td></tr>';
         }
 
         $selected = array_fill_keys(array_map('strval', (array) $this->option('selected', [])), true);
@@ -100,16 +100,16 @@ final class AdvancedTable extends Component
         foreach ($this->rows as $index => $row) {
             $rowKey = (string) ($this->value($row, $keyField) ?? $index);
             $rowHref = $this->rowHref($row);
-            $html .= '<tr data-stl-table-row'.($rowHref !== null ? ' data-stl-row-href="'.Html::escape($rowHref).'" tabindex="0"' : '').'>';
+            $html .= '<tr'.$this->partAttrs('row', ['data-stl-table-row' => true]).($rowHref !== null ? ' data-stl-row-href="'.Html::escape($rowHref).'" tabindex="0"' : '').'>';
             if ($selectable) {
-                $html .= '<td class="stl-advanced-table__selection"><input type="checkbox" name="'.Html::escape($name).'" value="'.Html::escape($rowKey).'"'.(isset($selected[$rowKey]) ? ' checked' : '').' data-stl-table-select></td>';
+                $html .= '<td'.$this->partAttrs('cell', ['class' => 'stl-advanced-table__selection']).'><input type="checkbox" name="'.Html::escape($name).'" value="'.Html::escape($rowKey).'"'.(isset($selected[$rowKey]) ? ' checked' : '').' data-stl-table-select></td>';
             }
             foreach ($columns as $column) {
                 $value = $this->cellValue($row, $column);
-                $html .= '<td data-stl-table-cell="'.Html::escape((string) $column['key']).'"'.(($column['visible'] ?? true) === false ? ' hidden' : '').'>'.$this->content($value).'</td>';
+                $html .= '<td'.$this->partAttrs('cell', ['data-stl-table-cell' => (string) $column['key']]).(($column['visible'] ?? true) === false ? ' hidden' : '').'>'.$this->content($value).'</td>';
             }
             if ($actions) {
-                $html .= '<td class="stl-advanced-table__actions">'.$this->actions($row).'</td>';
+                $html .= '<td'.$this->partAttrs('cell', ['class' => 'stl-advanced-table__actions']).'>'.$this->actions($row).'</td>';
             }
             $html .= '</tr>';
         }
@@ -122,12 +122,12 @@ final class AdvancedTable extends Component
     {
         $out = '';
         for ($row = 0; $row < max(1, (int) $this->option('skeletonRows', 5)); $row++) {
-            $out .= '<tr class="stl-advanced-table__skeleton">'.($selectable ? '<td><span></span></td>' : '');
+            $out .= '<tr'.$this->partAttrs('row', ['class' => 'stl-advanced-table__skeleton']).'>'.($selectable ? '<td'.$this->partAttrs('cell').'><span></span></td>' : '');
             foreach ($columns as $column) {
-                $out .= '<td data-stl-table-cell="'.Html::escape((string) $column['key']).'"'.(($column['visible'] ?? true) === false ? ' hidden' : '').'><span></span></td>';
+                $out .= '<td'.$this->partAttrs('cell', ['data-stl-table-cell' => (string) $column['key']]).(($column['visible'] ?? true) === false ? ' hidden' : '').'><span></span></td>';
             }
             if ($actions) {
-                $out .= '<td><span></span><span></span></td>';
+                $out .= '<td'.$this->partAttrs('cell').'><span></span><span></span></td>';
             }
             $out .= '</tr>';
         }

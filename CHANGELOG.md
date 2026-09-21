@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Add named component-part attributes for styling nested component elements without replacing package markup.
 - Register the `Ui` alias through Laravel's alias loader instead of a global Composer side effect.
 
 ## 1.6.4 - 2026-09-15

@@ -56,7 +56,7 @@ final class ExtendedComponents
             'table' => self::table((array) $a(0, []), (array) $a(1, []), (array) $a(2, [])),
             'tabs' => self::tabs((array) $a(0, []), (string) $a(1, ''), (array) $a(2, [])),
             'text' => '<p class="stl-text"'.$attrs($a(1, [])).'>'.$e($a(0)).'</p>',
-            'textarea' => '<label class="stl-field"><span class="stl-field__label">'.$e($a(1, 'Message')).'</span><textarea class="stl-textarea" name="'.$e($a(0, 'message')).'" rows="'.$e($a(2, 4)).'"'.$attrs($a(3, [])).'></textarea></label>',
+            'textarea' => self::field('textarea', (string) $a(0, 'message'), (string) $a(1, 'Message'), (array) $a(3, []), '', ['rows' => $a(2, 4)]),
             'timePicker' => '<label class="stl-field"><span class="stl-field__label">'.$e($a(1, 'Time')).'</span><input class="stl-input" type="time" name="'.$e($a(0, 'time')).'" value="'.$e($a(2, '')).'"'.$attrs($a(3, [])).'></label>',
             'timeline' => self::timeline((array) $a(0, []), (array) $a(1, [])),
             'toggle' => '<button class="stl-toggle" type="button" aria-pressed="'.($a(1, false) ? 'true' : 'false').'" data-stl-toggle'.$attrs($a(2, [])).'>'.$e($a(0)).'</button>',
@@ -219,7 +219,22 @@ final class ExtendedComponents
             $out .= '<option value="'.Html::escape(is_string($value) ? $value : $text).'">'.Html::escape($text).'</option>';
         }
 
-        return '<label class="stl-field"><span class="stl-field__label">'.Html::escape($label).'</span><select class="stl-select" name="'.Html::escape($name).'"'.Html::attributes($attributes).'>'.$out.'</select></label>';
+        return self::field('select', $name, $label, $attributes, $out);
+    }
+
+    /**
+     * @param array<string, mixed> $attributes
+     * @param array<string, mixed> $defaults
+     */
+    private static function field(string $tag, string $name, string $label, array $attributes, string $content = '', array $defaults = []): string
+    {
+        $parts = (array) ($attributes['parts'] ?? []);
+        unset($attributes['parts']);
+
+        return '<label'.Html::attributes(Html::mergeAttributes(['class' => 'stl-field'], $parts['field'] ?? [])).'>'
+            .'<span'.Html::attributes(Html::mergeAttributes(['class' => 'stl-field__label'], $parts['label'] ?? [])).'>'.Html::escape($label).'</span>'
+            .'<'.$tag.Html::attributes(Html::mergeAttributes(['class' => 'stl-'.$tag, 'name' => $name] + $defaults, $attributes)).'>'
+            .$content.'</'.$tag.'></label>';
     }
 
     private static function table(array $columns, array $rows, array $attributes): string

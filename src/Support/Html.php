@@ -49,4 +49,19 @@ final class Html
             preg_split('/\s+/', implode(' ', $classes)) ?: []
         ))));
     }
+
+    /**
+     * @param array<string, mixed> $defaults
+     * @param array<string, mixed> $attributes
+     * @return array<string, mixed>
+     */
+    public static function mergeAttributes(array $defaults, array $attributes): array
+    {
+        $merged = array_replace($defaults, $attributes);
+        if (isset($defaults['class'], $attributes['class'])) {
+            $merged['class'] = self::classes((string) $defaults['class'], (string) $attributes['class']);
+        }
+
+        return $merged;
+    }
 }

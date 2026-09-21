@@ -22,10 +22,10 @@ final class Card extends Component
 
     public function render(): string
     {
-        $title = $this->title === null ? '' : '<h3 class="stl-card__title">'.Html::escape($this->title).'</h3>';
-        $footer = $this->footer === null ? '' : '<footer class="stl-card__footer">'.Html::escape($this->footer).'</footer>';
+        $title = $this->title === null ? '' : '<h3'.$this->partAttrs('title', ['class' => 'stl-card__title']).'>'.Html::escape($this->title).'</h3>';
+        $footer = $this->footer === null ? '' : '<footer'.$this->partAttrs('footer', ['class' => 'stl-card__footer']).'>'.Html::escape($this->footer).'</footer>';
 
-        return '<section'.$this->attrs(['class' => 'stl-card']).'>'.$title.'<div class="stl-card__body">'.$this->content($this->body).'</div>'.$footer.'</section>';
+        return '<section'.$this->attrs(['class' => 'stl-card']).'>'.$title.'<div'.$this->partAttrs('body', ['class' => 'stl-card__body']).'>'.$this->content($this->body).'</div>'.$footer.'</section>';
     }
 
     private function content(mixed $content): string

@@ -40,29 +40,29 @@ final class MultiSelect extends Component
         foreach ($options as $option) {
             $isSelected = isset($selected[$option['value']]);
             if ($isSelected) {
-                $selectedLabels[] = '<span class="stl-multiselect__chip">'.Html::escape($option['label']).'</span>';
+                $selectedLabels[] = '<span'.$this->partAttrs('chip', ['class' => 'stl-multiselect__chip']).'>'.Html::escape($option['label']).'</span>';
             }
 
-            $items .= '<label class="stl-multiselect__option" data-stl-multiselect-option>'
-                .'<input class="stl-multiselect__input" type="checkbox" name="'.Html::escape($this->inputName()).'" value="'.Html::escape($option['value']).'"'
+            $items .= '<label'.$this->partAttrs('option', ['class' => 'stl-multiselect__option', 'data-stl-multiselect-option' => true]).'>'
+                .'<input'.$this->partAttrs('optionInput', ['class' => 'stl-multiselect__input', 'type' => 'checkbox', 'name' => $this->inputName(), 'value' => $option['value']])
                 .($isSelected ? ' checked' : '').($disabled ? ' disabled' : '').' data-stl-multiselect-input>'
-                .'<span class="stl-multiselect__check" aria-hidden="true">✓</span>'
-                .'<span>'.Html::escape($option['label']).'</span>'
+                .'<span'.$this->partAttrs('check', ['class' => 'stl-multiselect__check', 'aria-hidden' => 'true']).'>✓</span>'
+                .'<span'.$this->partAttrs('optionLabel').'>'.Html::escape($option['label']).'</span>'
                 .'</label>';
         }
 
         $value = $selectedLabels === []
-            ? '<span class="stl-multiselect__placeholder" data-stl-multiselect-value>'.Html::escape($this->placeholder).'</span>'
-            : '<span class="stl-multiselect__chips" data-stl-multiselect-value>'.implode('', $selectedLabels).'</span>';
-        $label = $this->label === null ? '' : '<label class="stl-field__label" for="'.Html::escape($id).'">'.Html::escape($this->label).'</label>';
+            ? '<span'.$this->partAttrs('placeholder', ['class' => 'stl-multiselect__placeholder', 'data-stl-multiselect-value' => true]).'>'.Html::escape($this->placeholder).'</span>'
+            : '<span'.$this->partAttrs('chips', ['class' => 'stl-multiselect__chips', 'data-stl-multiselect-value' => true]).'>'.implode('', $selectedLabels).'</span>';
+        $label = $this->label === null ? '' : '<label'.$this->partAttrs('label', ['class' => 'stl-field__label', 'for' => $id]).'>'.Html::escape($this->label).'</label>';
 
-        return '<div class="stl-field stl-multiselect-field">'.$label
-            .'<span class="stl-multiselect" data-stl-multiselect>'
-            .'<button'.$this->attrs(['class' => 'stl-multiselect__trigger', 'type' => 'button', 'id' => $id, 'aria-label' => $this->label ?? $this->placeholder, 'aria-expanded' => 'true', 'aria-controls' => $id.'-listbox', 'data-stl-multiselect-trigger' => true, 'data-placeholder' => $this->placeholder]).'>'.$value.'<span class="stl-multiselect__chevron" aria-hidden="true">⌄</span></button>'
-            .'<span id="'.Html::escape($id).'-panel" class="stl-multiselect__panel" data-stl-multiselect-panel>'
-            .'<input class="stl-multiselect__search" type="search" placeholder="Search options…" aria-label="Search '.Html::escape($this->label ?? $this->placeholder).'" data-stl-multiselect-search>'
-            .'<span id="'.Html::escape($id).'-listbox" class="stl-multiselect__options" role="group" aria-labelledby="'.Html::escape($id).'">'.$items.'</span>'
-            .'<span class="stl-multiselect__empty" data-stl-multiselect-empty hidden>No options found</span>'
+        return '<div'.$this->partAttrs('field', ['class' => 'stl-field stl-multiselect-field']).'>'.$label
+            .'<span'.$this->partAttrs('control', ['class' => 'stl-multiselect', 'data-stl-multiselect' => true]).'>'
+            .'<button'.$this->attrs(['class' => 'stl-multiselect__trigger', 'type' => 'button', 'id' => $id, 'aria-label' => $this->label ?? $this->placeholder, 'aria-expanded' => 'true', 'aria-controls' => $id.'-listbox', 'data-stl-multiselect-trigger' => true, 'data-placeholder' => $this->placeholder]).'>'.$value.'<span'.$this->partAttrs('chevron', ['class' => 'stl-multiselect__chevron', 'aria-hidden' => 'true']).'>⌄</span></button>'
+            .'<span'.$this->partAttrs('panel', ['id' => $id.'-panel', 'class' => 'stl-multiselect__panel', 'data-stl-multiselect-panel' => true]).'>'
+            .'<input'.$this->partAttrs('search', ['class' => 'stl-multiselect__search', 'type' => 'search', 'placeholder' => 'Search options…', 'aria-label' => 'Search '.($this->label ?? $this->placeholder), 'data-stl-multiselect-search' => true]).'>'
+            .'<span'.$this->partAttrs('options', ['id' => $id.'-listbox', 'class' => 'stl-multiselect__options', 'role' => 'group', 'aria-labelledby' => $id]).'>'.$items.'</span>'
+            .'<span'.$this->partAttrs('empty', ['class' => 'stl-multiselect__empty', 'data-stl-multiselect-empty' => true, 'hidden' => true]).'>No options found</span>'
             .'</span></span></div>';
     }
 
