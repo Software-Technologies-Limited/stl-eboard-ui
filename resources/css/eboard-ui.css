@@ -111,9 +111,14 @@
 
   .stl-field { display:grid; font-family:system-ui,sans-serif; gap:.35rem; }
   .stl-field__label { color:var(--stl-color-text); font-size:.875rem; font-weight:600; }
+  .stl-field__required { color:#dc2626; margin-left:.2rem; }
+  .stl-sr-only { border:0; clip:rect(0 0 0 0); clip-path:inset(50%); height:1px; margin:-1px; overflow:hidden; padding:0; position:absolute; white-space:nowrap; width:1px; }
   .stl-input { background:var(--stl-color-surface); border:1px solid var(--stl-color-border); border-radius:var(--stl-radius); box-sizing:border-box; color:var(--stl-color-text); font:400 .9rem/1 system-ui,sans-serif; min-height:2.5rem; padding:.65rem .75rem; width:100%; }
-  .stl-input[aria-invalid="true"] { border-color:#dc2626; }
-  .stl-field__error { color:#b91c1c; font-size:.78rem; }
+  .stl-input[aria-invalid="true"], .stl-select[aria-invalid="true"], .stl-textarea[aria-invalid="true"], .stl-multiselect__trigger[aria-invalid="true"] { border-color:#dc2626; box-shadow:0 0 0 1px rgb(220 38 38 / .15); }
+  .stl-input[aria-invalid="true"]:focus, .stl-select[aria-invalid="true"]:focus, .stl-textarea[aria-invalid="true"]:focus, .stl-multiselect__trigger[aria-invalid="true"]:focus { outline:3px solid rgb(220 38 38 / .2); outline-offset:1px; }
+  .stl-field__error { color:#b91c1c; font-size:.78rem; font-weight:500; line-height:1.35; }
+  .stl-form-error-summary { background:#fef2f2; border:1px solid #fecaca; border-left:4px solid #dc2626; border-radius:var(--stl-radius); color:#7f1d1d; font-family:system-ui,sans-serif; margin:0 0 1rem; padding:.9rem 1rem; }
+  .stl-form-error-summary__title { font-weight:700; margin:0 0 .35rem; }.stl-form-error-summary ul { margin:0; padding-left:1.15rem; }.stl-form-error-summary a { color:#b91c1c; text-decoration:underline; }
   .stl-checkbox { align-items:center; color:var(--stl-color-text); cursor:pointer; display:inline-flex; font:400 .9rem/1.4 system-ui,sans-serif; gap:.55rem; }
   .stl-checkbox__input { accent-color:var(--stl-color-primary); height:1rem; width:1rem; }
 

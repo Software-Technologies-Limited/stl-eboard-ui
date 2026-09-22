@@ -326,7 +326,75 @@
       const bulk = table.querySelector('[data-stl-table-bulk-actions]');
       if (bulk) bulk.hidden = selected === 0;
     });
+    find('form[data-stl-validate]').forEach(form => {
+      if (form.dataset.stlValidateReady === 'true') return;
+      form.dataset.stlValidateReady = 'true';
+      // Validation is handled below so every invalid field receives a visible message.
+      form.noValidate = true;
+    });
   };
+
+  const validationMessage = (control) => control.dataset.stlErrorRequired || 'This field is required.';
+  const validationId = (control) => control.id || `stl-${control.name || 'field'}-${Math.random().toString(36).slice(2, 8)}`;
+  const fieldFor = (control) => control.closest('.stl-field') || control.parentElement;
+  const setFieldError = (control, message) => {
+    const field = fieldFor(control); if (!field) return;
+    const id = validationId(control); control.id = id;
+    const errorId = `${id}-error`;
+    let error = field.querySelector(`#${CSS.escape(errorId)}`);
+    if (!error) { error = document.createElement('span'); error.id = errorId; error.className = 'stl-field__error'; error.setAttribute('role', 'alert'); field.appendChild(error); }
+    error.textContent = message;
+    control.setAttribute('aria-invalid', 'true');
+    control.setAttribute('aria-describedby', errorId);
+  };
+  const clearFieldError = (control) => {
+    const id = control.id; if (!id) return;
+    const errorId = `${id}-error`; const error = fieldFor(control)?.querySelector(`#${CSS.escape(errorId)}`);
+    // Preserve server-rendered errors until a user makes this field valid.
+    error?.remove(); control.removeAttribute('aria-invalid');
+    const descriptions = (control.getAttribute('aria-describedby') || '').split(' ').filter(item => item && item !== errorId);
+    if (descriptions.length) control.setAttribute('aria-describedby', descriptions.join(' ')); else control.removeAttribute('aria-describedby');
+  };
+  const multiselectValid = (root) => !root.hasAttribute('data-stl-required') || !!root.querySelector('[data-stl-multiselect-input]:checked');
+  const validateControl = (control) => {
+    if (control.matches('[data-stl-multiselect]')) {
+      const trigger = control.querySelector('[data-stl-multiselect-trigger]');
+      if (multiselectValid(control)) { clearFieldError(trigger); return true; }
+      setFieldError(trigger, validationMessage(control)); return false;
+    }
+    const required = control.required || control.getAttribute('aria-required') === 'true';
+    const valid = !required || (control.type === 'checkbox' || control.type === 'radio' ? control.checked : String(control.value || '').trim() !== '');
+    if (valid) clearFieldError(control); else setFieldError(control, validationMessage(control));
+    return valid;
+  };
+  const updateErrorSummary = (form, invalid) => {
+    let summary = form.querySelector('[data-stl-error-summary]');
+    if (!invalid.length) { summary?.remove(); return; }
+    if (!summary) { summary = document.createElement('section'); summary.className = 'stl-form-error-summary'; summary.dataset.stlErrorSummary = 'true'; summary.setAttribute('role', 'alert'); summary.tabIndex = -1; form.prepend(summary); }
+    const title = form.dataset.stlValidateTitle || 'Please correct the following fields';
+    const list = invalid.map(control => { const target = control.matches('[data-stl-multiselect]') ? control.querySelector('[data-stl-multiselect-trigger]') : control; return `<li><a href="#${target.id}" data-stl-error-focus>${validationMessage(control)}</a></li>`; }).join('');
+    summary.innerHTML = `<p class="stl-form-error-summary__title"></p><ul>${list}</ul>`; summary.firstElementChild.textContent = title;
+  };
+  document.addEventListener('submit', event => {
+    const form = event.target.closest('form[data-stl-validate]'); if (!form) return;
+    const controls = [...form.querySelectorAll('input, select, textarea, [data-stl-multiselect]')].filter(control => !control.disabled && (control.matches('[data-stl-multiselect]') || control.required || control.getAttribute('aria-required') === 'true'));
+    const invalid = controls.filter(control => !validateControl(control));
+    updateErrorSummary(form, invalid);
+    if (!invalid.length) return;
+    event.preventDefault();
+    const first = invalid[0].matches('[data-stl-multiselect]') ? invalid[0].querySelector('[data-stl-multiselect-trigger]') : invalid[0];
+    first.focus({ preventScroll: true }); first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    if (form.dataset.stlValidateToast === 'true') showToast({ title: 'Please correct the form', message: 'Review the highlighted fields.', tone: 'danger' });
+  });
+  document.addEventListener('input', event => { const form = event.target.closest('form[data-stl-validate]'); if (form) { validateControl(event.target); updateErrorSummary(form, [...form.querySelectorAll('input, select, textarea, [data-stl-multiselect]')].filter(control => (control.matches('[data-stl-multiselect]') || control.required || control.getAttribute('aria-required') === 'true') && !validateControl(control))); } });
+  document.addEventListener('change', event => {
+    const form = event.target.closest('form[data-stl-validate]'); if (!form) return;
+    const multi = event.target.closest('[data-stl-multiselect]');
+    validateControl(multi || event.target);
+    const invalid = [...form.querySelectorAll('input, select, textarea, [data-stl-multiselect]')].filter(control => !control.disabled && (control.matches('[data-stl-multiselect]') || control.required || control.getAttribute('aria-required') === 'true') && !validateControl(control));
+    updateErrorSummary(form, invalid);
+  });
+  document.addEventListener('click', event => { const link = event.target.closest('[data-stl-error-focus]'); if (!link) return; const target = document.getElementById(link.getAttribute('href').slice(1)); if (target) { event.preventDefault(); target.focus(); target.scrollIntoView({ behavior: 'smooth', block: 'center' }); } });
 
   let activeTooltip = null;
   let tooltipOwner = null;

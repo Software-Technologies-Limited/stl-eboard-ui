@@ -44,6 +44,18 @@ echo Ui::multiSelect(
     selected: ['ada'],
     label: 'Committee members',
 );
+
+// Mark a form for progressive browser validation. Server/Laravel validation still runs.
+echo '<form method="post" data-stl-validate data-stl-validate-toast="true">';
+echo Ui::input('email', 'Email address', 'email', $errors->first('email'), ['required' => true, 'value' => old('email')]);
+echo Ui::select('status', ['draft' => 'Draft', 'published' => 'Published'], 'Status', old('status'), $errors->first('status'), ['required' => true]);
+echo Ui::textarea('notes', 'Notes', 5, old('notes'), $errors->first('notes'), ['required' => true]);
+echo Ui::multiSelect('owners', ['ada' => 'Ada Lovelace'], old('owners', []), 'Owners', attributes: ['required' => true], error: $errors->first('owners'));
+echo Ui::button('Save');
+echo '</form>';
+
+// A Laravel error bag can also be surfaced at the top of the form.
+echo Ui::formErrorSummary($errors->toArray());
 echo Ui::iconAction(Ui::icon('edit'), 'Edit member', tooltip: 'Edit this member');
 echo Ui::circularProgress(68, size: 'lg'); // Dynamic orange at 68%
 echo Ui::richTable(

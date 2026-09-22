@@ -24,6 +24,7 @@ final class MultiSelect extends Component
         private readonly ?string $label = null,
         private readonly string $placeholder = 'Select options',
         array $attributes = [],
+        private readonly ?string $error = null,
     ) {
         parent::__construct($attributes);
     }
@@ -32,6 +33,8 @@ final class MultiSelect extends Component
     {
         $id = (string) ($this->attributes['id'] ?? 'stl-multiselect-'.++self::$sequence);
         $disabled = ! empty($this->attributes['disabled']);
+        $required = array_key_exists('required', $this->attributes) && $this->attributes['required'] !== false;
+        $errorId = $id.'-error';
         $options = $this->normaliseOptions();
         $selected = array_fill_keys(array_map(static fn (string|int $value): string => (string) $value, $this->selected), true);
         $selectedLabels = [];
@@ -54,16 +57,22 @@ final class MultiSelect extends Component
         $value = $selectedLabels === []
             ? '<span'.$this->partAttrs('placeholder', ['class' => 'stl-multiselect__placeholder', 'data-stl-multiselect-value' => true]).'>'.Html::escape($this->placeholder).'</span>'
             : '<span'.$this->partAttrs('chips', ['class' => 'stl-multiselect__chips', 'data-stl-multiselect-value' => true]).'>'.implode('', $selectedLabels).'</span>';
-        $label = $this->label === null ? '' : '<label'.$this->partAttrs('label', ['class' => 'stl-field__label', 'for' => $id]).'>'.Html::escape($this->label).'</label>';
+        $label = $this->label === null ? '' : '<label'.$this->partAttrs('label', ['class' => 'stl-field__label', 'for' => $id]).'>'.Html::escape($this->label).($required ? '<span class="stl-field__required" aria-hidden="true">*</span><span class="stl-sr-only"> required</span>' : '').'</label>';
+        $triggerAttributes = $this->attributes;
+        unset($triggerAttributes['required']);
+        $triggerDefaults = ['class' => 'stl-multiselect__trigger', 'type' => 'button', 'id' => $id, 'aria-label' => $this->label ?? $this->placeholder, 'aria-expanded' => 'true', 'aria-controls' => $id.'-listbox', 'data-stl-multiselect-trigger' => true, 'data-placeholder' => $this->placeholder];
+        if ($required) $triggerDefaults['aria-required'] = 'true';
+        if ($this->error !== null) $triggerDefaults += ['aria-invalid' => 'true', 'aria-describedby' => $errorId];
+        $error = $this->error === null ? '' : '<span'.$this->partAttrs('error', ['class' => 'stl-field__error', 'id' => $errorId, 'role' => 'alert']).'>'.Html::escape($this->error).'</span>';
 
         return '<div'.$this->partAttrs('field', ['class' => 'stl-field stl-multiselect-field']).'>'.$label
-            .'<span'.$this->partAttrs('control', ['class' => 'stl-multiselect', 'data-stl-multiselect' => true]).'>'
-            .'<button'.$this->attrs(['class' => 'stl-multiselect__trigger', 'type' => 'button', 'id' => $id, 'aria-label' => $this->label ?? $this->placeholder, 'aria-expanded' => 'true', 'aria-controls' => $id.'-listbox', 'data-stl-multiselect-trigger' => true, 'data-placeholder' => $this->placeholder]).'>'.$value.'<span'.$this->partAttrs('chevron', ['class' => 'stl-multiselect__chevron', 'aria-hidden' => 'true']).'>⌄</span></button>'
+            .'<span'.$this->partAttrs('control', ['class' => 'stl-multiselect', 'data-stl-multiselect' => true, 'data-stl-validation-name' => $this->name, 'data-stl-required' => $required ?: null]).'>'
+            .'<button'.Html::attributes(Html::mergeAttributes($triggerDefaults, $triggerAttributes)).'>'.$value.'<span'.$this->partAttrs('chevron', ['class' => 'stl-multiselect__chevron', 'aria-hidden' => 'true']).'>⌄</span></button>'
             .'<span'.$this->partAttrs('panel', ['id' => $id.'-panel', 'class' => 'stl-multiselect__panel', 'data-stl-multiselect-panel' => true]).'>'
             .'<input'.$this->partAttrs('search', ['class' => 'stl-multiselect__search', 'type' => 'search', 'placeholder' => 'Search options…', 'aria-label' => 'Search '.($this->label ?? $this->placeholder), 'data-stl-multiselect-search' => true]).'>'
             .'<span'.$this->partAttrs('options', ['id' => $id.'-listbox', 'class' => 'stl-multiselect__options', 'role' => 'group', 'aria-labelledby' => $id]).'>'.$items.'</span>'
             .'<span'.$this->partAttrs('empty', ['class' => 'stl-multiselect__empty', 'data-stl-multiselect-empty' => true, 'hidden' => true]).'>No options found</span>'
-            .'</span></span></div>';
+            .'</span></span>'.$error.'</div>';
     }
 
     /** @return array<int, array{value: string, label: string}> */

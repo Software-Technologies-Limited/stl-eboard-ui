@@ -19,6 +19,9 @@ use Stl\EboardUi\Components\HtmlFragment;
 use Stl\EboardUi\Components\Icon;
 use Stl\EboardUi\Components\IconAction;
 use Stl\EboardUi\Components\Input;
+use Stl\EboardUi\Components\Select;
+use Stl\EboardUi\Components\Textarea;
+use Stl\EboardUi\Components\FormErrorSummary;
 use Stl\EboardUi\Components\Modal;
 use Stl\EboardUi\Components\MultiSelect;
 use Stl\EboardUi\Components\PageHeader;
@@ -91,6 +94,25 @@ final class Ui
         return new Input($name, $label, $type, $error, $attributes);
     }
 
+    /** @param array<array-key, string|int> $options @param array<string, mixed> $attributes */
+    public static function select(string $name, array $options, string $label = 'Select', string|int|array|null $selected = null, ?string $error = null, array $attributes = []): Select
+    {
+        // The original fourth argument was attributes.
+        if (is_array($selected)) { $attributes = $selected; $selected = null; }
+        return new Select($name, $options, $label, $selected, $error, $attributes);
+    }
+
+    /** @param array<string, mixed> $attributes */
+    public static function textarea(string $name, string $label = 'Message', int $rows = 4, string|array $value = '', ?string $error = null, array $attributes = []): Textarea
+    {
+        // The original fourth argument was attributes.
+        if (is_array($value)) { $attributes = $value; $value = ''; }
+        return new Textarea($name, $label, $rows, $value, $error, $attributes);
+    }
+
+    /** @param array<string, string|array<int, string>> $errors @param array<string, mixed> $attributes */
+    public static function formErrorSummary(array $errors, string $title = 'Please correct the following fields', array $attributes = []): FormErrorSummary { return new FormErrorSummary($errors, $title, $attributes); }
+
     public static function checkbox(string $name, string $label, bool $checked = false, array $attributes = []): Checkbox
     {
         return new Checkbox($name, $label, $checked, $attributes);
@@ -155,9 +177,9 @@ final class Ui
      * @param  array<int, string|int>  $selected
      * @param  array<string, mixed>  $attributes  Attributes applied to the trigger button.
      */
-    public static function multiSelect(string $name, array $options, array $selected = [], ?string $label = null, string $placeholder = 'Select options', array $attributes = []): MultiSelect
+    public static function multiSelect(string $name, array $options, array $selected = [], ?string $label = null, string $placeholder = 'Select options', array $attributes = [], ?string $error = null): MultiSelect
     {
-        return new MultiSelect($name, $options, $selected, $label, $placeholder, $attributes);
+        return new MultiSelect($name, $options, $selected, $label, $placeholder, $attributes, $error);
     }
 
     /**
