@@ -61,9 +61,10 @@ final class MultiSelect extends Component
         $triggerAttributes = $this->attributes;
         unset($triggerAttributes['required']);
         $triggerDefaults = ['class' => 'stl-multiselect__trigger', 'type' => 'button', 'id' => $id, 'aria-label' => $this->label ?? $this->placeholder, 'aria-expanded' => 'true', 'aria-controls' => $id.'-listbox', 'data-stl-multiselect-trigger' => true, 'data-placeholder' => $this->placeholder];
+        $hasError = $this->error !== null && $this->error !== '';
         if ($required) $triggerDefaults['aria-required'] = 'true';
-        if ($this->error !== null) $triggerDefaults += ['aria-invalid' => 'true', 'aria-describedby' => $errorId];
-        $error = $this->error === null ? '' : '<span'.$this->partAttrs('error', ['class' => 'stl-field__error', 'id' => $errorId, 'role' => 'alert']).'>'.Html::escape($this->error).'</span>';
+        if ($hasError) $triggerDefaults += ['aria-invalid' => 'true', 'aria-describedby' => $errorId];
+        $error = ! $hasError ? '' : '<span'.$this->partAttrs('error', ['class' => 'stl-field__error', 'id' => $errorId, 'role' => 'alert']).'>'.Html::escape($this->error).'</span>';
 
         return '<div'.$this->partAttrs('field', ['class' => 'stl-field stl-multiselect-field']).'>'.$label
             .'<span'.$this->partAttrs('control', ['class' => 'stl-multiselect', 'data-stl-multiselect' => true, 'data-stl-validation-name' => $this->name, 'data-stl-required' => $required ?: null]).'>'

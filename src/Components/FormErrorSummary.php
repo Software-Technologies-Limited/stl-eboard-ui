@@ -15,9 +15,18 @@ final class FormErrorSummary extends Component
     {
         $items = '';
         foreach ($this->errors as $field => $messages) foreach ((array) $messages as $message) {
-            $id = 'stl-'.preg_replace('/[^a-z0-9_-]+/i', '-', (string) $field);
+            $id = $this->fieldId((string) $field);
             $items .= '<li><a href="#'.Html::escape($id).'" data-stl-error-focus>'.Html::escape($message).'</a></li>';
         }
         return '<section'.$this->attrs(['class' => 'stl-form-error-summary', 'role' => 'alert', 'tabindex' => '-1', 'data-stl-error-summary' => true]).'><p class="stl-form-error-summary__title">'.Html::escape($this->title).'</p><ul>'.$items.'</ul></section>';
+    }
+
+    private function fieldId(string $field): string
+    {
+        // Laravel error keys use dots while HTML names commonly use brackets.
+        $parts = explode('.', $field);
+        $name = array_shift($parts);
+        foreach ($parts as $part) $name .= '['.$part.']';
+        return 'stl-'.preg_replace('/[^a-z0-9_-]+/i', '-', $name);
     }
 }

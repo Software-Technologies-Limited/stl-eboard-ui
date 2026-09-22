@@ -16,8 +16,9 @@ final class Textarea extends Component
         $id = (string) ($this->attributes['id'] ?? 'stl-'.preg_replace('/[^a-z0-9_-]+/i', '-', $this->name)); $errorId = $id.'-error'; $required = array_key_exists('required', $this->attributes) && $this->attributes['required'] !== false;
         $label = '<label'.$this->partAttrs('label', ['class' => 'stl-field__label', 'for' => $id]).'>'.Html::escape($this->label).($required ? '<span class="stl-field__required" aria-hidden="true">*</span><span class="stl-sr-only"> required</span>' : '').'</label>';
         $defaults = ['class' => 'stl-textarea', 'id' => $id, 'name' => $this->name, 'rows' => $this->rows];
-        if ($required) $defaults['aria-required'] = 'true'; if ($this->error !== null) $defaults += ['aria-invalid' => 'true', 'aria-describedby' => $errorId];
-        $error = $this->error === null ? '' : '<span'.$this->partAttrs('error', ['class' => 'stl-field__error', 'id' => $errorId, 'role' => 'alert']).'>'.Html::escape($this->error).'</span>';
+        $hasError = $this->error !== null && $this->error !== '';
+        if ($required) $defaults['aria-required'] = 'true'; if ($hasError) $defaults += ['aria-invalid' => 'true', 'aria-describedby' => $errorId];
+        $error = ! $hasError ? '' : '<span'.$this->partAttrs('error', ['class' => 'stl-field__error', 'id' => $errorId, 'role' => 'alert']).'>'.Html::escape($this->error).'</span>';
         return '<div'.$this->partAttrs('field', ['class' => 'stl-field']).'>'.$label.'<textarea'.$this->attrs($defaults).'>'.Html::escape($this->value).'</textarea>'.$error.'</div>';
     }
 }

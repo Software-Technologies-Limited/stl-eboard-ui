@@ -26,9 +26,10 @@ final class Input extends Component
         $errorId = $id.'-error';
         $required = array_key_exists('required', $this->attributes) && $this->attributes['required'] !== false;
         $label = $this->label === null ? '' : '<label'.$this->partAttrs('label', ['class' => 'stl-field__label', 'for' => $id]).'>'.Html::escape($this->label).($required ? '<span class="stl-field__required" aria-hidden="true">*</span><span class="stl-sr-only"> required</span>' : '').'</label>';
-        $error = $this->error === null ? '' : '<span'.$this->partAttrs('error', ['class' => 'stl-field__error', 'id' => $errorId, 'role' => 'alert']).'>'.Html::escape($this->error).'</span>';
+        $hasError = $this->error !== null && $this->error !== '';
+        $error = ! $hasError ? '' : '<span'.$this->partAttrs('error', ['class' => 'stl-field__error', 'id' => $errorId, 'role' => 'alert']).'>'.Html::escape($this->error).'</span>';
         $defaults = ['class' => 'stl-input', 'id' => $id, 'name' => $this->name, 'type' => $this->type];
-        if ($this->error !== null) {
+        if ($hasError) {
             $defaults['aria-invalid'] = 'true';
             $defaults['aria-describedby'] = $errorId;
         }

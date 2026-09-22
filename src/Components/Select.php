@@ -23,13 +23,15 @@ final class Select extends Component
         $label = '<label'.$this->partAttrs('label', ['class' => 'stl-field__label', 'for' => $id]).'>'.Html::escape($this->label).$this->requiredMark($required).'</label>';
         $options = '';
         foreach ($this->options as $value => $text) {
-            $optionValue = is_string($value) ? $value : $text;
+            // Numeric keys are legitimate submitted values, not list indexes.
+            $optionValue = $value;
             $options .= '<option value="'.Html::escape($optionValue).'"'.((string) $optionValue === (string) $this->selected ? ' selected' : '').'>'.Html::escape($text).'</option>';
         }
         $defaults = ['class' => 'stl-select', 'id' => $id, 'name' => $this->name];
         if ($required) $defaults['aria-required'] = 'true';
-        if ($this->error !== null) $defaults += ['aria-invalid' => 'true', 'aria-describedby' => $errorId];
-        $error = $this->error === null ? '' : '<span'.$this->partAttrs('error', ['class' => 'stl-field__error', 'id' => $errorId, 'role' => 'alert']).'>'.Html::escape($this->error).'</span>';
+        $hasError = $this->error !== null && $this->error !== '';
+        if ($hasError) $defaults += ['aria-invalid' => 'true', 'aria-describedby' => $errorId];
+        $error = ! $hasError ? '' : '<span'.$this->partAttrs('error', ['class' => 'stl-field__error', 'id' => $errorId, 'role' => 'alert']).'>'.Html::escape($this->error).'</span>';
 
         return '<div'.$this->partAttrs('field', ['class' => 'stl-field']).'>'.$label.'<select'.$this->attrs($defaults).'>'.$options.'</select>'.$error.'</div>';
     }

@@ -12,6 +12,8 @@ $select = Ui::select('state', ['draft' => 'Draft', 'live' => 'Live'], 'State', '
 $check(str_contains($select, 'value="live" selected'), 'Select preserves selected values.');
 $check(str_contains($select, 'aria-invalid="true"'), 'Select errors invalidate the control.');
 $check(str_contains($select, 'aria-describedby="stl-state-error"'), 'Select errors are described by their message.');
+$check(str_contains(Ui::select('priority', [5 => 'High'], 'Priority', 5)->render(), 'value="5" selected'), 'Integer select keys are preserved as values.');
+$check(!str_contains(Ui::input('email', 'Email', error: '')->render(), 'aria-invalid'), 'Empty Laravel errors do not invalidate inputs.');
 $textarea = Ui::textarea('notes', 'Notes', 3, '<script>', 'Notes are required', ['required' => true])->render();
 $check(str_contains($textarea, '&lt;script&gt;'), 'Textarea values are escaped.');
 $check(str_contains($textarea, 'aria-required="true"'), 'Required textareas expose aria-required.');
@@ -21,4 +23,6 @@ $check(str_contains($multi, 'aria-invalid="true"'), 'Multiselect errors invalida
 $summary = Ui::formErrorSummary(['email' => ['Email is required.']])->render();
 $check(str_contains($summary, 'role="alert"'), 'Error summary announces errors.');
 $check(str_contains($summary, 'href="#stl-email"'), 'Error summary links to its control.');
+$nested = Ui::input('owners[0][id]', 'Owner')->render().Ui::formErrorSummary(['owners.0.id' => 'Select an owner'])->render();
+$check(str_contains($nested, 'href="#stl-owners-0-id-"'), 'Nested Laravel error keys link to bracketed field IDs.');
 echo "Passed {$checks} form checks.\n";
