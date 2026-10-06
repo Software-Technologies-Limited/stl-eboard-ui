@@ -20,9 +20,4 @@ $check(str_contains($textarea, 'aria-required="true"'), 'Required textareas expo
 $multi = Ui::multiSelect('owners', ['ada' => 'Ada'], ['ada'], 'Owners', attributes: ['required' => true], error: 'Choose an owner')->render();
 $check(str_contains($multi, 'value="ada" checked'), 'Multiselect preserves selected values.');
 $check(str_contains($multi, 'aria-invalid="true"'), 'Multiselect errors invalidate its trigger.');
-$summary = Ui::formErrorSummary(['email' => ['Email is required.']])->render();
-$check(str_contains($summary, 'role="alert"'), 'Error summary announces errors.');
-$check(str_contains($summary, 'href="#stl-email"'), 'Error summary links to its control.');
-$nested = Ui::input('owners[0][id]', 'Owner')->render().Ui::formErrorSummary(['owners.0.id' => 'Select an owner'])->render();
-$check(str_contains($nested, 'href="#stl-owners-0-id-"'), 'Nested Laravel error keys link to bracketed field IDs.');
 echo "Passed {$checks} form checks.\n";

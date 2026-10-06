@@ -54,10 +54,7 @@ echo Ui::multiSelect('owners', ['ada' => 'Ada Lovelace'], old('owners', []), 'Ow
 echo Ui::button('Save');
 echo '</form>';
 
-// Add data-stl-validate-summary="false" to a form when inline errors are sufficient.
-
-// A Laravel error bag can also be surfaced at the top of the form.
-echo Ui::formErrorSummary($errors->toArray());
+// Validation messages are shown beside their fields after submission.
 echo Ui::iconAction(Ui::icon('edit'), 'Edit member', tooltip: 'Edit this member');
 echo Ui::button('Send evaluation', attributes: ['data-stl-open' => 'send-evaluation-confirmation']);
 echo Ui::confirmDialog('send-evaluation-confirmation', 'Send evaluation?', 'Evaluators will be able to submit responses immediately.', 'Send and open', 'Keep editing', 'primary', ['type' => 'submit', 'form' => 'evaluation-form']);

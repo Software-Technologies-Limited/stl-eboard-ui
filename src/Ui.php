@@ -16,7 +16,6 @@ use Stl\EboardUi\Components\ConfirmDialog;
 use Stl\EboardUi\Components\DataTable;
 use Stl\EboardUi\Components\EmptyState;
 use Stl\EboardUi\Components\FilterForm;
-use Stl\EboardUi\Components\FormErrorSummary;
 use Stl\EboardUi\Components\HtmlFragment;
 use Stl\EboardUi\Components\Icon;
 use Stl\EboardUi\Components\IconAction;
@@ -117,12 +116,6 @@ final class Ui
         }
 
         return new Textarea($name, $label, $rows, $value, $error, $attributes);
-    }
-
-    /** @param array<string, string|array<int, string>> $errors @param array<string, mixed> $attributes */
-    public static function formErrorSummary(array $errors, string $title = 'Please correct the following fields', array $attributes = []): FormErrorSummary
-    {
-        return new FormErrorSummary($errors, $title, $attributes);
     }
 
     public static function checkbox(string $name, string $label, bool $checked = false, array $attributes = []): Checkbox

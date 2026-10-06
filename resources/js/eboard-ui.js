@@ -421,21 +421,11 @@
     if (valid) clearFieldError(control); else setFieldError(control, validationMessage(control));
     return valid;
   };
-  const updateErrorSummary = (form, invalid) => {
-    let summary = form.querySelector('[data-stl-error-summary]');
-    if (form.dataset.stlValidateSummary === 'false') { summary?.remove(); return; }
-    if (!invalid.length) { summary?.remove(); return; }
-    if (!summary) { summary = document.createElement('section'); summary.className = 'stl-form-error-summary'; summary.dataset.stlErrorSummary = 'true'; summary.setAttribute('role', 'alert'); summary.tabIndex = -1; form.prepend(summary); }
-    const title = form.dataset.stlValidateTitle || 'Please correct the following fields';
-    const list = invalid.map(control => { const target = control.matches('[data-stl-multiselect]') ? control.querySelector('[data-stl-multiselect-trigger]') : control; return `<li><a href="#${target.id}" data-stl-error-focus>${validationMessage(control)}</a></li>`; }).join('');
-    summary.innerHTML = `<p class="stl-form-error-summary__title"></p><ul>${list}</ul>`; summary.firstElementChild.textContent = title;
-  };
   document.addEventListener('submit', event => {
     const form = event.target.closest('form[data-stl-validate]'); if (!form) return;
     form.dataset.stlValidateSubmitted = 'true';
     const controls = [...form.querySelectorAll('input, select, textarea, [data-stl-multiselect]')].filter(control => !control.disabled && (control.matches('[data-stl-multiselect]') || control.required || control.getAttribute('aria-required') === 'true'));
     const invalid = controls.filter(control => !validateControl(control));
-    updateErrorSummary(form, invalid);
     if (!invalid.length) return;
     event.preventDefault();
     const first = invalid[0].matches('[data-stl-multiselect]') ? invalid[0].querySelector('[data-stl-multiselect-trigger]') : invalid[0];
@@ -444,20 +434,17 @@
   });
   document.addEventListener('input', event => {
     const form = event.target.closest('form[data-stl-validate]'); if (!form) return;
+    if (form.dataset.stlValidateSubmitted !== 'true' && !event.target.hasAttribute('aria-invalid')) return;
     validateControl(event.target);
-    if (form.dataset.stlValidateSubmitted !== 'true') return;
-    const invalid = [...form.querySelectorAll('input, select, textarea, [data-stl-multiselect]')].filter(control => !control.disabled && (control.matches('[data-stl-multiselect]') || control.required || control.getAttribute('aria-required') === 'true') && !validateControl(control));
-    updateErrorSummary(form, invalid);
   });
   document.addEventListener('change', event => {
     const form = event.target.closest('form[data-stl-validate]'); if (!form) return;
     const multi = event.target.closest('[data-stl-multiselect]');
-    validateControl(multi || event.target);
-    if (form.dataset.stlValidateSubmitted !== 'true') return;
-    const invalid = [...form.querySelectorAll('input, select, textarea, [data-stl-multiselect]')].filter(control => !control.disabled && (control.matches('[data-stl-multiselect]') || control.required || control.getAttribute('aria-required') === 'true') && !validateControl(control));
-    updateErrorSummary(form, invalid);
+    const control = multi || event.target;
+    const target = multi ? multi.querySelector('[data-stl-multiselect-trigger]') : event.target;
+    if (form.dataset.stlValidateSubmitted !== 'true' && !target?.hasAttribute('aria-invalid')) return;
+    validateControl(control);
   });
-  document.addEventListener('click', event => { const link = event.target.closest('[data-stl-error-focus]'); if (!link) return; const target = document.getElementById(link.getAttribute('href').slice(1)); if (target) { event.preventDefault(); target.focus(); target.scrollIntoView({ behavior: 'smooth', block: 'center' }); } });
 
   let activeTooltip = null;
   let tooltipOwner = null;
