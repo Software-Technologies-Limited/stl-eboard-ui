@@ -12,24 +12,25 @@ use Stl\EboardUi\Components\Button;
 use Stl\EboardUi\Components\Card;
 use Stl\EboardUi\Components\Checkbox;
 use Stl\EboardUi\Components\CircularProgress;
+use Stl\EboardUi\Components\ConfirmDialog;
 use Stl\EboardUi\Components\DataTable;
 use Stl\EboardUi\Components\EmptyState;
 use Stl\EboardUi\Components\FilterForm;
+use Stl\EboardUi\Components\FormErrorSummary;
 use Stl\EboardUi\Components\HtmlFragment;
 use Stl\EboardUi\Components\Icon;
 use Stl\EboardUi\Components\IconAction;
 use Stl\EboardUi\Components\Input;
-use Stl\EboardUi\Components\Select;
-use Stl\EboardUi\Components\Textarea;
-use Stl\EboardUi\Components\FormErrorSummary;
 use Stl\EboardUi\Components\Modal;
 use Stl\EboardUi\Components\MultiSelect;
 use Stl\EboardUi\Components\PageHeader;
 use Stl\EboardUi\Components\Pagination;
 use Stl\EboardUi\Components\Panel;
 use Stl\EboardUi\Components\RichTable;
+use Stl\EboardUi\Components\Select;
 use Stl\EboardUi\Components\StatCard;
 use Stl\EboardUi\Components\Tabs;
+use Stl\EboardUi\Components\Textarea;
 use Stl\EboardUi\Components\Toast;
 use Stl\EboardUi\Components\Toaster;
 use Stl\EboardUi\Components\Toolbar;
@@ -98,7 +99,11 @@ final class Ui
     public static function select(string $name, array $options, string $label = 'Select', string|int|array|null $selected = null, ?string $error = null, array $attributes = []): Select
     {
         // The original fourth argument was attributes.
-        if (is_array($selected)) { $attributes = $selected; $selected = null; }
+        if (is_array($selected)) {
+            $attributes = $selected;
+            $selected = null;
+        }
+
         return new Select($name, $options, $label, $selected, $error, $attributes);
     }
 
@@ -106,12 +111,19 @@ final class Ui
     public static function textarea(string $name, string $label = 'Message', int $rows = 4, string|array $value = '', ?string $error = null, array $attributes = []): Textarea
     {
         // The original fourth argument was attributes.
-        if (is_array($value)) { $attributes = $value; $value = ''; }
+        if (is_array($value)) {
+            $attributes = $value;
+            $value = '';
+        }
+
         return new Textarea($name, $label, $rows, $value, $error, $attributes);
     }
 
     /** @param array<string, string|array<int, string>> $errors @param array<string, mixed> $attributes */
-    public static function formErrorSummary(array $errors, string $title = 'Please correct the following fields', array $attributes = []): FormErrorSummary { return new FormErrorSummary($errors, $title, $attributes); }
+    public static function formErrorSummary(array $errors, string $title = 'Please correct the following fields', array $attributes = []): FormErrorSummary
+    {
+        return new FormErrorSummary($errors, $title, $attributes);
+    }
 
     public static function checkbox(string $name, string $label, bool $checked = false, array $attributes = []): Checkbox
     {
@@ -121,6 +133,12 @@ final class Ui
     public static function modal(string $id, string $title, Renderable|string $body, array $attributes = []): Modal
     {
         return new Modal($id, $title, $body, $attributes);
+    }
+
+    /** @param array<string, mixed> $confirmAttributes @param array<string, mixed> $attributes */
+    public static function confirmDialog(string $id, string $title, Renderable|string $message, string $confirmLabel = 'Confirm', string $cancelLabel = 'Cancel', string $variant = 'danger', array $confirmAttributes = [], array $attributes = []): ConfirmDialog
+    {
+        return new ConfirmDialog($id, $title, $message, $confirmLabel, $cancelLabel, $variant, $confirmAttributes, $attributes);
     }
 
     public static function accordion(array $items, array $attributes = []): Accordion

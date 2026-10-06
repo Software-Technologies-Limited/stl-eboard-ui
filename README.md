@@ -59,6 +59,8 @@ echo '</form>';
 // A Laravel error bag can also be surfaced at the top of the form.
 echo Ui::formErrorSummary($errors->toArray());
 echo Ui::iconAction(Ui::icon('edit'), 'Edit member', tooltip: 'Edit this member');
+echo Ui::button('Send evaluation', attributes: ['data-stl-open' => 'send-evaluation-confirmation']);
+echo Ui::confirmDialog('send-evaluation-confirmation', 'Send evaluation?', 'Evaluators will be able to submit responses immediately.', 'Send and open', 'Keep editing', 'primary', ['type' => 'submit', 'form' => 'evaluation-form']);
 echo Ui::circularProgress(68, size: 'lg'); // Dynamic orange at 68%
 echo Ui::richTable(
     [

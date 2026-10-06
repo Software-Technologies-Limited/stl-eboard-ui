@@ -135,6 +135,10 @@
   .stl-modal__header h2 { font-size:1.1rem; margin:0; }
   .stl-modal__body { line-height:1.5; padding:1.25rem; }
   .stl-modal__close { background:none; border:0; cursor:pointer; font-size:1.5rem; }
+  .stl-confirm-dialog__message { color:var(--stl-color-muted); margin:0; }
+  .stl-confirm-dialog__footer { align-items:center; border-top:1px solid var(--stl-color-border); display:flex; gap:.75rem; justify-content:flex-end; padding:1rem 1.25rem; }
+  .stl-modal__body.stl-confirm-dialog__content { padding:0; }
+  .stl-confirm-dialog__content>.stl-confirm-dialog__message { padding:1.25rem; }
 
   .stl-panel { background:var(--stl-color-surface); border:1px solid var(--stl-color-border); border-radius:calc(var(--stl-radius) * 1.3); box-shadow:var(--stl-shadow); color:var(--stl-color-text); font-family:system-ui,sans-serif; overflow:hidden; }
   .stl-panel__header { align-items:center; border-bottom:1px solid var(--stl-color-border); display:flex; gap:1rem; justify-content:space-between; padding:1rem 1.25rem; }

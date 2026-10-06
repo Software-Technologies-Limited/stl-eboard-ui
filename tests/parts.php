@@ -59,6 +59,11 @@ $html = Ui::modal('example', 'Example', Ui::html('<p>Content</p>'), ['parts' => 
 $check(str_contains($html, 'class="stl-modal__body p-0"'), 'Modal body classes apply directly.');
 $check(str_contains($html, 'aria-labelledby="example-title"'), 'Modal accessibility remains intact.');
 $check(str_contains($html, 'data-stl-close'), 'Modal close behavior remains intact.');
+$html = Ui::confirmDialog('send-review', 'Send review?', 'Participants can respond immediately.', 'Send now', 'Keep editing', 'primary', ['type' => 'submit', 'form' => 'review-form'])->render();
+$check(str_contains($html, 'class="stl-modal stl-confirm-dialog"'), 'Confirmation dialogs use accessible modal styling.');
+$check(str_contains($html, 'aria-describedby="send-review-message"'), 'Confirmation dialogs describe their message.');
+$check(str_contains($html, 'type="submit" form="review-form"'), 'Confirmation dialogs can submit an external form.');
+$check(str_contains($html, 'data-stl-close'), 'Confirmation dialogs provide a cancel action.');
 $html = Ui::multiSelect('choices', ['one' => 'One'], ['one'], 'Choices', attributes: ['parts' => ['option' => ['class' => 'gap-2'], 'optionInput' => ['class' => 'sr-only'], 'search' => ['class' => 'font-normal']]])->render();
 $check(str_contains($html, 'stl-multiselect__option gap-2'), 'Multiselect options accept classes.');
 $check(str_contains($html, 'stl-multiselect__input sr-only'), 'Multiselect inputs accept classes.');
