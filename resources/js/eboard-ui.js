@@ -88,6 +88,57 @@
   window.StlEboardUi = Object.assign(window.StlEboardUi || {}, { toast: showToast, dismissToast });
   document.addEventListener('stl:toast', (event) => showToast(event.detail));
 
+  const multiselectBounds = (trigger) => {
+    let top = 8;
+    let bottom = window.innerHeight - 8;
+    let ancestor = trigger.parentElement;
+
+    while (ancestor && ancestor !== document.body) {
+      const style = window.getComputedStyle(ancestor);
+      if (/(auto|scroll|hidden|clip)/.test(`${style.overflow} ${style.overflowY}`)) {
+        const rect = ancestor.getBoundingClientRect();
+        top = Math.max(top, rect.top);
+        bottom = Math.min(bottom, rect.bottom);
+      }
+      ancestor = ancestor.parentElement;
+    }
+
+    return { top, bottom };
+  };
+
+  const positionMultiselect = (root) => {
+    const trigger = root?.querySelector('[data-stl-multiselect-trigger]');
+    const panel = root?.querySelector('[data-stl-multiselect-panel]');
+    const options = panel?.querySelector('.stl-multiselect__options');
+    if (!trigger || !panel || panel.hidden) return;
+
+    root.dataset.stlPlacement = 'bottom';
+    panel.style.maxHeight = '';
+    if (options) options.style.maxHeight = '';
+
+    const triggerRect = trigger.getBoundingClientRect();
+    const panelRect = panel.getBoundingClientRect();
+    const bounds = multiselectBounds(trigger);
+    const spaceAbove = Math.max(0, triggerRect.top - bounds.top - 6);
+    const spaceBelow = Math.max(0, bounds.bottom - triggerRect.bottom - 6);
+    const placement = panelRect.height > spaceBelow && spaceAbove > spaceBelow ? 'top' : 'bottom';
+    const availableSpace = placement === 'top' ? spaceAbove : spaceBelow;
+
+    root.dataset.stlPlacement = placement;
+    panel.style.maxHeight = `${Math.max(80, availableSpace)}px`;
+    if (options) {
+      const panelChrome = Math.max(0, panelRect.height - options.getBoundingClientRect().height);
+      options.style.maxHeight = `${Math.max(24, availableSpace - panelChrome)}px`;
+    }
+  };
+
+  const positionOpenMultiselects = () => {
+    document.querySelectorAll('[data-stl-multiselect-panel]:not([hidden])').forEach(panel => positionMultiselect(panel.closest('[data-stl-multiselect]')));
+  };
+
+  window.addEventListener('resize', positionOpenMultiselects);
+  document.addEventListener('scroll', positionOpenMultiselects, true);
+
   document.addEventListener('click', (event) => {
     const opener = event.target.closest('[data-stl-open]');
     if (opener) document.getElementById(opener.dataset.stlOpen)?.showModal();
@@ -153,7 +204,10 @@
       if (panel && !multiSelectTrigger.disabled) {
         panel.hidden = !panel.hidden;
         multiSelectTrigger.setAttribute('aria-expanded', String(!panel.hidden));
-        if (!panel.hidden) panel.querySelector('[data-stl-multiselect-search]')?.focus();
+        if (!panel.hidden) {
+          positionMultiselect(root);
+          panel.querySelector('[data-stl-multiselect-search]')?.focus();
+        }
       }
     } else if (!event.target.closest('[data-stl-multiselect]')) {
       document.querySelectorAll('[data-stl-multiselect-panel]:not([hidden])').forEach(panel => {
@@ -369,6 +423,7 @@
   };
   const updateErrorSummary = (form, invalid) => {
     let summary = form.querySelector('[data-stl-error-summary]');
+    if (form.dataset.stlValidateSummary === 'false') { summary?.remove(); return; }
     if (!invalid.length) { summary?.remove(); return; }
     if (!summary) { summary = document.createElement('section'); summary.className = 'stl-form-error-summary'; summary.dataset.stlErrorSummary = 'true'; summary.setAttribute('role', 'alert'); summary.tabIndex = -1; form.prepend(summary); }
     const title = form.dataset.stlValidateTitle || 'Please correct the following fields';
@@ -377,6 +432,7 @@
   };
   document.addEventListener('submit', event => {
     const form = event.target.closest('form[data-stl-validate]'); if (!form) return;
+    form.dataset.stlValidateSubmitted = 'true';
     const controls = [...form.querySelectorAll('input, select, textarea, [data-stl-multiselect]')].filter(control => !control.disabled && (control.matches('[data-stl-multiselect]') || control.required || control.getAttribute('aria-required') === 'true'));
     const invalid = controls.filter(control => !validateControl(control));
     updateErrorSummary(form, invalid);
@@ -386,11 +442,18 @@
     first.focus({ preventScroll: true }); first.scrollIntoView({ behavior: 'smooth', block: 'center' });
     if (form.dataset.stlValidateToast === 'true') showToast({ title: 'Please correct the form', message: 'Review the highlighted fields.', tone: 'danger' });
   });
-  document.addEventListener('input', event => { const form = event.target.closest('form[data-stl-validate]'); if (form) { validateControl(event.target); updateErrorSummary(form, [...form.querySelectorAll('input, select, textarea, [data-stl-multiselect]')].filter(control => (control.matches('[data-stl-multiselect]') || control.required || control.getAttribute('aria-required') === 'true') && !validateControl(control))); } });
+  document.addEventListener('input', event => {
+    const form = event.target.closest('form[data-stl-validate]'); if (!form) return;
+    validateControl(event.target);
+    if (form.dataset.stlValidateSubmitted !== 'true') return;
+    const invalid = [...form.querySelectorAll('input, select, textarea, [data-stl-multiselect]')].filter(control => !control.disabled && (control.matches('[data-stl-multiselect]') || control.required || control.getAttribute('aria-required') === 'true') && !validateControl(control));
+    updateErrorSummary(form, invalid);
+  });
   document.addEventListener('change', event => {
     const form = event.target.closest('form[data-stl-validate]'); if (!form) return;
     const multi = event.target.closest('[data-stl-multiselect]');
     validateControl(multi || event.target);
+    if (form.dataset.stlValidateSubmitted !== 'true') return;
     const invalid = [...form.querySelectorAll('input, select, textarea, [data-stl-multiselect]')].filter(control => !control.disabled && (control.matches('[data-stl-multiselect]') || control.required || control.getAttribute('aria-required') === 'true') && !validateControl(control));
     updateErrorSummary(form, invalid);
   });

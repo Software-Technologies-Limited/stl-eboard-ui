@@ -54,6 +54,8 @@ echo Ui::multiSelect('owners', ['ada' => 'Ada Lovelace'], old('owners', []), 'Ow
 echo Ui::button('Save');
 echo '</form>';
 
+// Add data-stl-validate-summary="false" to a form when inline errors are sufficient.
+
 // A Laravel error bag can also be surfaced at the top of the form.
 echo Ui::formErrorSummary($errors->toArray());
 echo Ui::iconAction(Ui::icon('edit'), 'Edit member', tooltip: 'Edit this member');
