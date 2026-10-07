@@ -125,10 +125,10 @@
     const availableSpace = placement === 'top' ? spaceAbove : spaceBelow;
 
     root.dataset.stlPlacement = placement;
-    panel.style.maxHeight = `${Math.max(80, availableSpace)}px`;
+    panel.style.maxHeight = `${Math.max(0, availableSpace)}px`;
     if (options) {
       const panelChrome = Math.max(0, panelRect.height - options.getBoundingClientRect().height);
-      options.style.maxHeight = `${Math.max(24, availableSpace - panelChrome)}px`;
+      options.style.maxHeight = `${Math.max(0, availableSpace - panelChrome)}px`;
     }
   };
 
@@ -137,7 +137,10 @@
   };
 
   window.addEventListener('resize', positionOpenMultiselects);
-  document.addEventListener('scroll', positionOpenMultiselects, true);
+  document.addEventListener('scroll', (event) => {
+    if (event.target instanceof Element && event.target.closest('.stl-multiselect__options')) return;
+    positionOpenMultiselects();
+  }, true);
 
   document.addEventListener('click', (event) => {
     const opener = event.target.closest('[data-stl-open]');
