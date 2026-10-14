@@ -49,9 +49,9 @@ final class Ui
         return new HtmlFragment($html);
     }
 
-    public static function button(string $label, string $variant = 'primary', string $size = 'md', array $attributes = []): Button
+    public static function button(string $label, string $variant = 'primary', string $size = 'md', array $attributes = [], bool $loading = false, string $loadingLabel = 'Please wait…', bool $loadingOnSubmit = false): Button
     {
-        return new Button($label, $variant, $size, $attributes);
+        return new Button($label, $variant, $size, $attributes, $loading, $loadingLabel, $loadingOnSubmit);
     }
 
     public static function badge(string $label, string $tone = 'neutral', array $attributes = []): Badge

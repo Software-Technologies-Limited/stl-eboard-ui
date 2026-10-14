@@ -253,3 +253,23 @@ window.StlEboardUi.toast({
 You can also dispatch an `stl:toast` event with the same detail object.
 Positions include `top-left`, `top-center`, `top-right`, `bottom-left`,
 `bottom-center`, and `bottom-right`.
+
+### Loading buttons
+
+```php
+Ui::button('Send reminder', attributes: ['type' => 'submit'], loadingLabel: 'Sending…', loadingOnSubmit: true);
+Ui::button('Sending', loading: true);
+```
+
+`loading` renders a disabled button with a spinner and `aria-busy`. `loadingOnSubmit`
+starts the state after an accepted form submission; prevented or invalid submissions
+do not lock the button. Existing button calls remain compatible.
+For asynchronous forms, control the same state with:
+
+```js
+window.StlEboardUi.setButtonLoading(button, true);
+// Restore in the request's finally block.
+window.StlEboardUi.setButtonLoading(button, false);
+```
+
+Dynamic toasts are placed inside the active dialog so its backdrop cannot hide them.

@@ -1,4 +1,38 @@
 (() => {
+  const loadingButtonState = new WeakMap();
+  const setButtonLoading = (button, loading = true) => {
+    if (!button?.matches('[data-stl-loading-button]')) return;
+    if (loading && !loadingButtonState.has(button)) {
+      loadingButtonState.set(button, { disabled: button.dataset.stlLoading === 'true' ? button.dataset.stlIdleDisabled === 'true' : button.disabled, ariaDisabled: button.getAttribute('aria-disabled') });
+    }
+    button.dataset.stlLoading = String(loading);
+    button.setAttribute('aria-busy', String(loading));
+    const label = button.querySelector('[data-stl-button-label]');
+    if (label) label.textContent = loading ? button.dataset.stlLoadingLabel : button.dataset.stlIdleLabel;
+    if (button.tagName === 'BUTTON') button.disabled = loading || (loadingButtonState.get(button)?.disabled ?? button.dataset.stlIdleDisabled === 'true');
+    else if (loading) button.setAttribute('aria-disabled', 'true');
+    else {
+      const original = loadingButtonState.get(button)?.ariaDisabled;
+      if (original === null || original === undefined) button.removeAttribute('aria-disabled');
+      else button.setAttribute('aria-disabled', original);
+    }
+    if (!loading) loadingButtonState.delete(button);
+  };
+  document.addEventListener('submit', event => {
+    const button = event.submitter;
+    if (!button?.matches('[data-stl-loading-on-submit="true"]')) return;
+    if (button.dataset.stlLoading === 'true') { event.preventDefault(); return; }
+    queueMicrotask(() => { if (!event.defaultPrevented) setButtonLoading(button, true); });
+  });
+  document.addEventListener('click', event => {
+    if (event.target.closest('a[data-stl-loading="true"]')) event.preventDefault();
+  });
+  window.addEventListener('pageshow', () => {
+    document.querySelectorAll('[data-stl-loading-on-submit="true"]').forEach(button => {
+      if (loadingButtonState.has(button)) setButtonLoading(button, false);
+    });
+  });
+  window.StlEboardUi = Object.assign(window.StlEboardUi || {}, { setButtonLoading });
   const toastTimers = new WeakMap();
 
   const dismissToast = (toast) => {
@@ -34,17 +68,25 @@
   };
 
   const ensureToaster = (position = 'top-center') => {
+    const host = [...document.querySelectorAll('dialog[open]')].at(-1) || document.body;
     let toaster = document.querySelector(`[data-stl-toaster][data-position="${position}"]`);
-    if (toaster) return toaster;
+    if (toaster) {
+      if (toaster.parentElement !== host) host.appendChild(toaster);
+      return toaster;
+    }
 
     toaster = document.createElement('div');
     toaster.className = `stl-toaster stl-toaster--${position}`;
     toaster.dataset.stlToaster = 'true';
     toaster.dataset.position = position;
     toaster.setAttribute('aria-label', 'Notifications');
-    document.body.appendChild(toaster);
+    host.appendChild(toaster);
     return toaster;
   };
+  document.addEventListener('close', event => {
+    if (event.target.tagName !== 'DIALOG') return;
+    event.target.querySelectorAll('[data-stl-toaster]').forEach(toaster => document.body.appendChild(toaster));
+  }, true);
 
   const showToast = ({ title = 'Notification', message = '', tone = 'info', timeout = 3500, position = 'top-center' } = {}) => {
     const allowedTones = ['info', 'success', 'warning', 'danger'];
